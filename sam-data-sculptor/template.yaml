@@ -28,13 +28,14 @@ Resources:
       CodeUri: user_api/
       Handler: create.lambda_handler
       Runtime: python3.12
+      Timeout: 10
       Policies:
         - AmazonDynamoDBFullAccess
       Architectures:
-      - x86_64
+        - x86_64
       Events:
         CreateUser:
-          Type: Api
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             RestApiId: !Ref API
             Path: /user
@@ -42,12 +43,37 @@ Resources:
             Auth:
               Authorizer: NONE
 
+
+  UpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: update.lambda_handler
+      Runtime: python3.12
+      Timeout: 10
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: PATCH
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
   AuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: authorizer/
       Handler: basic.lambda_handler
       Runtime: python3.12
+      Timeout: 10
+      Policies:
+        - AmazonDynamoDBFullAccess
       Architectures: 
       - x86_64
 
