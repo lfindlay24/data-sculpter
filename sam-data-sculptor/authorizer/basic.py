@@ -4,7 +4,7 @@ from os import getenv
 import re
 import bcrypt
 from base64 import b64decode
-from bson import Binary
+from bson.binary import Binary
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
@@ -30,12 +30,15 @@ def lambda_handler(event, context):
     print(f"Email: {email}, Password: {password}")
 
     user = get_user(email)
-    hashed_password = user["password"].decode("utf-8")
-    print(hashed_password)
-    # print(f"User_id: {user['user_id']}, Email: {user['email']}, Password: {user['password'].decode('utf-8')}")
 
-    # if check_password(password, user["password"]):
-    #     auth = "Allow"
+    hashed_password_bytes = bytes(user["password"])
+    hashed_password = hashed_password_bytes.decode('utf-8')
+    print(hashed_password)
+
+    print(f"User_id: {user['user_id']}, Email: {user['email']}, Password: {hashed_password_bytes.decode('utf-8')}")
+
+    if check_password(password, hashed_password):
+        auth = "Allow"
 
     authResponse = {
         "principalId": f"abcd",

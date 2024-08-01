@@ -15,7 +15,7 @@ codeuri = "C:\\Neumont\\Q8\\Cloud Project\\data-sculpter\\sam-data-sculptor\\aut
 runtime = "python3.12"
 architecture = "x86_64"
 handler = "basic.lambda_handler"
-manifest_hash = "19dc66f6576a41fd38acf4f2e8c74cc4"
+manifest_hash = "b1097bcf2f1a31aba9fccfe35f50a3a4"
 packagetype = "Zip"
 functions = ["AuthorizerFunction"]
 
