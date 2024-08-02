@@ -4,7 +4,6 @@ from os import getenv
 import re
 import bcrypt
 from base64 import b64decode
-from bson.binary import Binary
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')

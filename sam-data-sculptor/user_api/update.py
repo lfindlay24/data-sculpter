@@ -6,7 +6,7 @@ import bcrypt
 from base64 import b64encode
 
 region_name = getenv('APP_REGION')
-users_table = boto3.resource('dynamodb', region_name=region_name).Table('Users')
+users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
 
 def lambda_handler(event, context):
     
@@ -22,12 +22,15 @@ def lambda_handler(event, context):
     user_id = path["userId"]
     user = users_table.get_item(Key={"user_id": user_id})
     print(user)
-    if "Item" not in None:
+    if "Item" not in user:
         return response(404, "user not found")
     
     user = user["Item"]
 
-    if not check_password(body["old_password"], user["password"]):
+    hashed_password_bytes = bytes(user["password"])
+    hashed_password = hashed_password_bytes.decode('utf-8')
+
+    if not check_password(body["old_password"], hashed_password):
         return response(400, "incorrect old password")
     
     if "email" in body:
