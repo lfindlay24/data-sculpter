@@ -8,7 +8,7 @@ architecture = "x86_64"
 handler = "create.lambda_handler"
 manifest_hash = "51f01b313d48b72f46376150e6e12a98"
 packagetype = "Zip"
-functions = ["CreateUserFunction", "UpdateUserFunction"]
+functions = ["CreateUserFunction", "UpdateUserFunction", "DeleteUserFunction"]
 
 [function_build_definitions.2f70f52a-ba38-4157-a377-43131efd45f7]
 codeuri = "C:\\Neumont\\Q8\\Cloud Project\\data-sculpter\\sam-data-sculptor\\authorizer"

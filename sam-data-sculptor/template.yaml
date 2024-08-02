@@ -64,6 +64,27 @@ Resources:
             Auth:
               Authorizer: MyLambdaAuthorizer
 
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: deleteUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: DELETE
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
