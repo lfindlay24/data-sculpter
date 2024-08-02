@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_ui/pages/login.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,6 +12,52 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: middleContent(),
       ),
+      drawer: Drawer(
+        child: mainDrawer(context),
+      ),
+    );
+  }
+
+  ListView mainDrawer(BuildContext context) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.close)),
+        const DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.deepPurple,
+          ),
+          child: Text(
+            'Data Sculpor',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24.0,
+            ),
+          ),
+        ),
+        ListTile(
+          title: const Text('Home'),
+          onTap: () {
+            // Add your logic here
+          },
+        ),
+        ListTile(
+          title: const Text('About'),
+          onTap: () {
+            // Add your logic here
+          },
+        ),
+        ListTile(
+          title: const Text('Contact'),
+          onTap: () {
+            // Add your logic here
+          },
+        ),
+      ],
     );
   }
 
@@ -25,28 +72,36 @@ class HomePage extends StatelessWidget {
         ),
       ),
       centerTitle: true,
-      leading: Container(
-        margin: const EdgeInsets.all(10.0),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.grey[200],
-        ),
-        child: SvgPicture.asset(
-          'assets/icons/Arrow - Left 2.svg',
-          height: 20,
-          width: 20,
-        ),
+      leading: Builder(
+        builder: (BuildContext context) {
+          return IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            tooltip: 'Menu',
+          );
+        },
       ),
       actions: [
         Container(
-          color: Colors.grey[200],
-          child: IconButton(
-            icon: const Icon(Icons.login),
-            onPressed: () {
-            },
-            tooltip: 'Login',
+          margin: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50.0),
+            color: Colors.grey[200],
           ),
+          child: Builder(builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.login),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()));
+              },
+              tooltip: 'Login',
+            );
+          }),
         ),
       ],
     );
