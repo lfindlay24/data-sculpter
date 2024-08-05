@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_ui/pages/graphsPage.dart';
 import 'package:flutter_ui/pages/login.dart';
 
 class HomePage extends StatelessWidget {
@@ -55,6 +56,15 @@ class HomePage extends StatelessWidget {
           title: const Text('Contact'),
           onTap: () {
             // Add your logic here
+          },
+        ),
+                ListTile(
+          title: const Text('Graphs'),
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => GraphsPage()));
           },
         ),
       ],
