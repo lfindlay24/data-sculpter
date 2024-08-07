@@ -28,7 +28,7 @@ Resources:
       CodeUri: user_api/
       Handler: create.lambda_handler
       Runtime: python3.12
-      Timeout: 10
+      Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
       Architectures:
@@ -43,14 +43,13 @@ Resources:
             Auth:
               Authorizer: NONE
 
-
   UpdateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: user_api/
       Handler: update.lambda_handler
       Runtime: python3.12
-      Timeout: 10
+      Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
       Architectures:
@@ -64,6 +63,69 @@ Resources:
             Method: PATCH
             Auth:
               Authorizer: MyLambdaAuthorizer
+
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: deleteUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: DELETE
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: getUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: GET
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: authorizer/
+      Handler: login.lambda_handler
+      Runtime: python3.12
+      Timeout: 10
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /login
+            Method: POST
+            Auth:
+              Authorizer: NONE
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function
