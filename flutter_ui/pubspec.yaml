@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^1.1.6
   flutter_login: ^5.0.0
+  syncfusion_flutter_charts: ^26.2.7
+  window_manager: ^0.3.9
 
 dev_dependencies:
   flutter_test:
