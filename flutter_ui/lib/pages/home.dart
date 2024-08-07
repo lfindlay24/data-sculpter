@@ -122,7 +122,7 @@ class HomePage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          'Welcome to Data Sculpor',
+          'Welcome to Data Sculptor',
           style: TextStyle(
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
