@@ -85,6 +85,27 @@ Resources:
             Auth:
               Authorizer: MyLambdaAuthorizer
 
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: getUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: GET
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
   LoginFunction:
     Type: AWS::Serverless::Function
     Properties:
