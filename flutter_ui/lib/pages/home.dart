@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:flutter_ui/pages/graphsPage.dart';
 import 'package:flutter_ui/pages/login.dart';
 
@@ -58,15 +59,20 @@ class HomePage extends StatelessWidget {
             // Add your logic here
           },
         ),
-                ListTile(
+        ListTile(
           title: const Text('Graphs'),
           onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => GraphsPage()));
+                context, MaterialPageRoute(builder: (context) => GraphsPage()));
           },
         ),
+        ListTile(
+          title: const Text('Insert Data'),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => DataInsertionPage()));
+          },
+        )
       ],
     );
   }
