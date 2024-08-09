@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/pages/home.dart';
 
+List<Map<String, dynamic>> workingData = [];
+
 void main() {
   runApp(const MyApp());
 }

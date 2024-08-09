@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ui/main.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
@@ -25,13 +26,19 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('workingData: $workingData');
+    debugPrint('year: ${workingData[0]['year']}');
+    debugPrint('sales: ${workingData[0]}');
+    debugPrint('first object: ${workingData[0]}');
     return Scaffold(
-        appBar: graphBar(),
-        body: mainGraphContent(context),);
+      appBar: graphBar(),
+      body: mainGraphContent(context),
+    );
   }
 
   Column mainGraphContent(BuildContext context) {
-    return Column(children: [
+    return Column(
+      children: [
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -44,15 +51,36 @@ class GraphsPageState extends State<GraphsPage> {
                       primaryXAxis: CategoryAxis(),
                       title:
                           const ChartTitle(text: 'Half yearly sales analysis'),
-                      series: <CartesianSeries<_SalesData, String>>[
-                        LineSeries<_SalesData, String>(
-                            dataSource: data,
-                            xValueMapper: (_SalesData sales, _) => sales.year,
-                            yValueMapper: (_SalesData sales, _) => sales.sales,
+                      series: <CartesianSeries<Map<String, dynamic>, String>>[
+                        LineSeries<Map<String, dynamic>, String>(
+                            dataSource: workingData,
+                            xValueMapper:
+                                (Map<String, dynamic> workingData, _) {
+                              debugPrint('workingData: $workingData');
+                              if (workingData.containsKey('year')) {
+                                debugPrint('year: ${workingData['year']}');
+                                return workingData['year'];
+                              } else {
+                                debugPrint(
+                                    'year key not found in: $workingData');
+                                return ''; // or handle the missing key appropriately
+                              }
+                            },
+                            yValueMapper:
+                                (Map<String, dynamic> workingData, _) {
+                              if (workingData.containsKey('sales')) {
+                                debugPrint('sales: ${workingData['sales']}');
+                                return workingData['sales'];
+                              } else {
+                                debugPrint(
+                                    'sales key not found in: $workingData');
+                                return 0.0; // or handle the missing key appropriately
+                              }
+                            },
                             name: 'Sales',
                             // Enable data label
                             dataLabelSettings:
-                                DataLabelSettings(isVisible: true))
+                                const DataLabelSettings(isVisible: true))
                       ],
                     ),
                   )
@@ -148,87 +176,88 @@ class GraphsPageState extends State<GraphsPage> {
             ),
           ),
         ),
-      ],);
+      ],
+    );
   }
 
   AppBar graphBar() {
     return AppBar(
-        title: const Text('Data Analysis Page'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.pie_chart),
-            color: _chartType != 'pie' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'pie';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.show_chart),
-            color: _chartType != 'line' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'line';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.details),
-            color: _chartType != 'pyramid' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'pyramid';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.filter_alt),
-            color: _chartType != 'funnel' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'funnel';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.star_border),
-            color: _chartType != 'spark' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'spark';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.star),
-            color: _chartType != 'sparkArea' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'sparkArea';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            color: _chartType != 'sparkBar' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'sparkBar';
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.sports_score),
-            color: _chartType != 'sparkWin' ? Colors.grey : Colors.green,
-            onPressed: () {
-              setState(() {
-                _chartType = 'sparkWin';
-              });
-            },
-          ),
-        ],
-      );
+      title: const Text('Data Analysis Page'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.pie_chart),
+          color: _chartType != 'pie' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'pie';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.show_chart),
+          color: _chartType != 'line' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'line';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.details),
+          color: _chartType != 'pyramid' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'pyramid';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.filter_alt),
+          color: _chartType != 'funnel' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'funnel';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.star_border),
+          color: _chartType != 'spark' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'spark';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.star),
+          color: _chartType != 'sparkArea' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkArea';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.bar_chart),
+          color: _chartType != 'sparkBar' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkBar';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.sports_score),
+          color: _chartType != 'sparkWin' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkWin';
+            });
+          },
+        ),
+      ],
+    );
   }
 }
 
