@@ -12,6 +12,8 @@ class GraphsPage extends StatefulWidget {
 }
 
 class GraphsPageState extends State<GraphsPage> {
+  String xAxis = workingData[0].keys.first;
+  String yAxis = workingData[0].keys.last;
   List<_SalesData> data = [
     _SalesData('Jan', 35),
     _SalesData('Feb', -28),
@@ -26,9 +28,15 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (workingData.isEmpty) {
+      workingData = [
+
+      ];
+    }
     debugPrint('workingData: $workingData');
     debugPrint('year: ${workingData[0]['year']}');
-    debugPrint('sales: ${workingData[0]}');
+    debugPrint('sales: ${workingData[0]['sales']}');
+    debugPrint('Keys: ${workingData[0].keys}');
     debugPrint('first object: ${workingData[0]}');
     return Scaffold(
       appBar: graphBar(),
@@ -56,26 +64,11 @@ class GraphsPageState extends State<GraphsPage> {
                             dataSource: workingData,
                             xValueMapper:
                                 (Map<String, dynamic> workingData, _) {
-                              debugPrint('workingData: $workingData');
-                              if (workingData.containsKey('year')) {
-                                debugPrint('year: ${workingData['year']}');
-                                return workingData['year'];
-                              } else {
-                                debugPrint(
-                                    'year key not found in: $workingData');
-                                return ''; // or handle the missing key appropriately
-                              }
+                              return workingData[xAxis];
                             },
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) {
-                              if (workingData.containsKey('sales')) {
-                                debugPrint('sales: ${workingData['sales']}');
-                                return workingData['sales'];
-                              } else {
-                                debugPrint(
-                                    'sales key not found in: $workingData');
-                                return 0.0; // or handle the missing key appropriately
-                              }
+                              return num.parse(workingData[yAxis]);
                             },
                             name: 'Sales',
                             // Enable data label
@@ -90,13 +83,16 @@ class GraphsPageState extends State<GraphsPage> {
                     child: SfCircularChart(
                       title: const ChartTitle(text: 'Sales distribution'),
                       series: <CircularSeries>[
-                        PieSeries<_SalesData, String>(
+                        PieSeries<Map<String, dynamic>, String>(
                           explode: true,
-                          dataSource: data,
-                          xValueMapper: (_SalesData sales, _) => sales.year,
-                          yValueMapper: (_SalesData sales, _) => sales.sales,
-                          dataLabelMapper: (_SalesData sales, _) =>
-                              sales.sales.toString(),
+                          dataSource: workingData,
+                          xValueMapper: (Map<String, dynamic> workingData, _) =>
+                              workingData[xAxis],
+                          yValueMapper: (Map<String, dynamic> workingData, _) =>
+                              num.parse(workingData[yAxis]),
+                          dataLabelMapper: (Map<String, dynamic> workingData,
+                                  _) =>
+                              '${workingData[xAxis]}, ${workingData[yAxis].toString()}',
                           dataLabelSettings:
                               const DataLabelSettings(isVisible: true),
                         )
@@ -108,10 +104,10 @@ class GraphsPageState extends State<GraphsPage> {
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfPyramidChart(
                         title: const ChartTitle(text: 'Sales distribution'),
-                        series: PyramidSeries<_SalesData, String>(
-                          dataSource: data,
-                          xValueMapper: (_SalesData sales, _) => sales.year,
-                          yValueMapper: (_SalesData sales, _) => sales.sales,
+                        series: PyramidSeries<Map<String, dynamic>, String>(
+                          dataSource: workingData,
+                          xValueMapper: (Map<String, dynamic> workingData, _) => workingData[xAxis],
+                          yValueMapper: (Map<String, dynamic> workingData, _) => num.parse(workingData[yAxis]),
                           dataLabelSettings:
                               const DataLabelSettings(isVisible: true),
                         )),
@@ -121,10 +117,10 @@ class GraphsPageState extends State<GraphsPage> {
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfFunnelChart(
                         title: const ChartTitle(text: 'Sales distribution'),
-                        series: FunnelSeries<_SalesData, String>(
-                          dataSource: data,
-                          xValueMapper: (_SalesData sales, _) => sales.year,
-                          yValueMapper: (_SalesData sales, _) => sales.sales,
+                        series: FunnelSeries<Map<String, dynamic>, String>(
+                          dataSource: workingData,
+                          xValueMapper: (Map<String, dynamic> workingData, _) => workingData[xAxis],
+                          yValueMapper: (Map<String, dynamic> workingData, _) => num.parse(workingData[yAxis]),
                           dataLabelSettings:
                               const DataLabelSettings(isVisible: true),
                         )),
@@ -133,7 +129,7 @@ class GraphsPageState extends State<GraphsPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfSparkLineChart(
-                        data: data.map((e) => e.sales).toList(),
+                        data: workingData.map((e) => num.parse(e[yAxis])).toList(),
                         plotBand: const SparkChartPlotBand(
                             start: 0,
                             end: 2,
@@ -145,7 +141,7 @@ class GraphsPageState extends State<GraphsPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfSparkAreaChart(
-                        data: data.map((e) => e.sales).toList(),
+                        data: workingData.map((e) => num.parse(e[yAxis])).toList(),
                         plotBand: const SparkChartPlotBand(
                             start: 0,
                             end: 2,
@@ -157,7 +153,7 @@ class GraphsPageState extends State<GraphsPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfSparkBarChart(
-                        data: data.map((e) => e.sales).toList(),
+                        data: workingData.map((e) => num.parse(e[yAxis])).toList(),
                         plotBand: const SparkChartPlotBand(
                             start: 0,
                             end: 2,
@@ -169,7 +165,7 @@ class GraphsPageState extends State<GraphsPage> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: SfSparkWinLossChart(
-                      data: data.map((e) => e.sales).toList(),
+                        data: workingData.map((e) => num.parse(e[yAxis])).toList(),
                     ),
                   ),
               ],

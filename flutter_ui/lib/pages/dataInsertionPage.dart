@@ -41,19 +41,22 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                   onPressed: () async {
                     String data = await parseCsvData();
                     debugPrint('data ${data}');
-                    setState(() {
-                      pageData = data;
-                    });
+                    if (data != '') {
+                      setState(() {
+                        pageData = data;
+                      });
+                    }
                   },
                   child: const Text('Select A File'),
                 ),
                 if (pageData != null)
                   TextButton(
                     onPressed: () {
+                      workingData = [];
                       for (int i = 0; i < rowData!.length; i++) {
                         Map<String, String> rowMap = {};
                         for (int j = 0; j < rowData![i].length; j++) {
-                          rowMap[columnNames![j]] = rowData![i][j];
+                          rowMap[columnNames![j].trim()] = rowData![i][j];
                         }
                         workingData.add(rowMap);
                       }
