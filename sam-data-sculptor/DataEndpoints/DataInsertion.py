@@ -6,12 +6,14 @@ import json
 from datetime import datetime
  
 region_name = getenv('APP_REGION')
-performances_table = boto3.resource('dynamodb', region_name=region_name ).Table('')
  
  
 def lambda_handler(event, context):
     bucket_name = event['Records'][0]['s3']['bucket']['name']
     file_key = event['Records'][0]['s3']['bucket']['key']
+
+    print(bucket_name)
+    print(file_key)
 
     s3 = boto3.client('s3')
 
