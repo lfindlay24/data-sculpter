@@ -62,7 +62,7 @@ Resources:
           - Sid: PublicReadForGetBucketObjects
             Effect: Allow
             Principal: '*'
-            Action: 's3:GetObject'
+            Action: 's3:InsertObject'
             Resource: !Join 
               - ''
               - - 'arn:aws:s3:::'
