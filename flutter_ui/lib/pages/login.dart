@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:flutter_ui/pages/home.dart';
+import 'package:http/http.dart' as http;
 
 const users = {
   'dribbble@gmail.com': '12345',
@@ -26,12 +27,29 @@ class LoginScreen extends StatelessWidget {
     });
   }
 
-  Future<String?> _signupUser(SignupData data) {
+  Future<String?> _signupUser(SignupData data) async {
     //TODO implement signup database communication
     debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
-      return null;
-    });
+    var postBody = {
+      "email": data.name,
+      "password": data.password,
+    };
+    final response = await http.post(
+      Uri.parse(
+          'https://b2a94j15zg.execute-api.us-east-2.amazonaws.com/Dev/user'),
+      body: postBody,
+    );
+
+    if (response.statusCode == 200) {
+      debugPrint(postBody.toString());
+      debugPrint(response.body);
+      return response.body;
+    } else {
+      debugPrint(postBody.toString());
+      debugPrint(response.body);
+      debugPrint(response.statusCode.toString());
+      return 'Signup failed';
+    }
   }
 
   Future<String> _recoverPassword(String name) {
