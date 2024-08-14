@@ -15,6 +15,7 @@ class GraphsPage extends StatefulWidget {
 class GraphsPageState extends State<GraphsPage> {
   String xAxis = workingData[0].keys.first;
   String yAxis = workingData[0].keys.last;
+  String numberModifier = 'none';
   List<_SalesData> data = [
     _SalesData('Jan', 35),
     _SalesData('Feb', -28),
@@ -32,11 +33,9 @@ class GraphsPageState extends State<GraphsPage> {
     if (workingData.isEmpty) {
       workingData = [];
     }
-    debugPrint('workingData: $workingData');
-    debugPrint('year: ${workingData[0]['year']}');
-    debugPrint('sales: ${workingData[0]['sales']}');
     debugPrint('Keys: ${workingData[0].keys}');
     debugPrint('first object: ${workingData[0]}');
+    debugPrint('Number Modifier: $numberModifier');
     return Scaffold(
       appBar: graphBar(),
       body: mainGraphContent(context),
@@ -72,7 +71,10 @@ class GraphsPageState extends State<GraphsPage> {
                               },
                               yValueMapper:
                                   (Map<String, dynamic> workingData, _) {
-                                return num.parse(workingData[yAxis]);
+                                switch (numberModifier) {
+                                  default:
+                                    return num.parse(workingData[yAxis]);
+                                }
                               },
                               name: 'Sales',
                               // Enable data label
@@ -222,6 +224,29 @@ class GraphsPageState extends State<GraphsPage> {
                           )
                     ],
                   ),
+                  DropdownMenu<String>(
+                    label: const Text('Select Number Modifier'),
+                    onSelected: (String? value) {
+                      setState(() {
+                        numberModifier = value!;
+                        debugPrint('Number Modifier: $numberModifier');
+                      });
+                    },
+                    dropdownMenuEntries: const [
+                        DropdownMenuEntry<String>(
+                          value: 'none',
+                          label: 'None',
+                        ),
+                        DropdownMenuEntry(
+                          value: 'sum',
+                          label: 'Sum',
+                        ),
+                        DropdownMenuEntry(
+                          value: 'average',
+                          label: 'Average',
+                        ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -310,6 +335,20 @@ class GraphsPageState extends State<GraphsPage> {
       ],
     );
   }
+
+  Map<String, double> getSumByXAxis() {
+    Map<String, double> sumByCategory = {};
+    for (var data in workingData) {
+      String category = data[xAxis];
+      double value = double.parse(data[yAxis]); // Assuming 'value' is the key for the numeric data
+      if (sumByCategory.containsKey(category)) {
+        sumByCategory[category] = sumByCategory[category]! + value;
+      } else {
+        sumByCategory[category] = value;
+      }
+    }
+    return sumByCategory;
+}
 }
 
 class _SalesData {
