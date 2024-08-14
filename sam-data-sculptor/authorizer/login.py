@@ -22,6 +22,10 @@ def lambda_handler(event, context):
     if "password" not in body:
         return response(400, "Password is required")
     
+    if "temp_password" in users["Items"][0]:
+        if check_password(body["password"], users["Items"][0]["temp_password"]):
+            return response(205, "Password reset required")
+    
     hashed_password_bytes = bytes(users["Items"][0]["password"])
     hashed_password = hashed_password_bytes.decode('utf-8')
 
