@@ -10,10 +10,7 @@ region_name = getenv('APP_REGION')
  
 def lambda_handler(event, context):
     bucket_name = event['Records'][0]['s3']['bucket']['name']
-    file_key = event['Records'][0]['s3']['bucket']['key']
-
-    print(bucket_name)
-    print(file_key)
+    file_key = event['Records'][0]['s3']['object']['key']
 
     s3 = boto3.client('s3')
 

@@ -40,7 +40,7 @@ Resources:
           Type: Api
           Properties:
             Path: /data
-            Method: post
+            Method: get
 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
