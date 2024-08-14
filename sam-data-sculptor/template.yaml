@@ -62,7 +62,7 @@ Resources:
             Path: /user
             Method: PUT
             Auth:
-              Authorizer: MyLambdaAuthorizer
+              Authorizer: NONE
 
   DeleteUserFunction:
     Type: AWS::Serverless::Function

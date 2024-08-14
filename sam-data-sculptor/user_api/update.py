@@ -1,5 +1,6 @@
 import boto3
 from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
 from os import getenv
 import json
 import bcrypt
@@ -25,8 +26,12 @@ def lambda_handler(event, context):
     
     user = user["Item"]
 
-    hashed_password_bytes = bytes(user["password"])
-    hashed_password = hashed_password_bytes.decode('utf-8')
+    if "temp_password" in user:
+        hashed_password = user["temp_password"]
+            
+    else:
+        hashed_password_bytes = bytes(user["password"])
+        hashed_password = hashed_password_bytes.decode('utf-8')
 
     if not check_password(body["old_password"], hashed_password):
         return response(400, "incorrect old password")
@@ -36,7 +41,21 @@ def lambda_handler(event, context):
     
     user["password"] = salt_hash_password(body["new_password"])
     
-    users_table.put_item(Item=user)
+    try:
+        # Update the user, remove the temp_password field, and update the password field
+        users_table.update_item(
+            Key={'email': body['email']},
+            UpdateExpression="REMOVE temp_password SET #pwd = :new_password",
+            ExpressionAttributeNames={'#pwd': 'password'},
+            ExpressionAttributeValues={':new_password': user["password"]},
+            ReturnValues="UPDATED_NEW"
+        )
+    
+    except ClientError as e:
+        return {
+            'statusCode': 400,
+            'body': f"Error updating user: {e.response['Error']['Message']}"
+        }
 
     stringtoencode = f"{body["email"]}:{body['new_password']}"
     encoded = b64encode(stringtoencode.encode('utf-8'))
