@@ -64,7 +64,16 @@ class GraphsPageState extends State<GraphsPage> {
                             text: 'Half yearly sales analysis'),
                         series: <CartesianSeries<Map<String, dynamic>, String>>[
                           LineSeries<Map<String, dynamic>, String>(
-                              dataSource: workingData,
+                              dataSource: () {
+                                switch (numberModifier) {
+                                  case 'sum':
+                                    getSumByXAxis();
+                                    // return data;
+                                    return workingData;
+                                  default:
+                                    return workingData;
+                                }
+                              }(),
                               xValueMapper:
                                   (Map<String, dynamic> workingData, _) {
                                 return workingData[xAxis];
@@ -233,18 +242,18 @@ class GraphsPageState extends State<GraphsPage> {
                       });
                     },
                     dropdownMenuEntries: const [
-                        DropdownMenuEntry<String>(
-                          value: 'none',
-                          label: 'None',
-                        ),
-                        DropdownMenuEntry(
-                          value: 'sum',
-                          label: 'Sum',
-                        ),
-                        DropdownMenuEntry(
-                          value: 'average',
-                          label: 'Average',
-                        ),
+                      DropdownMenuEntry<String>(
+                        value: 'none',
+                        label: 'None',
+                      ),
+                      DropdownMenuEntry(
+                        value: 'sum',
+                        label: 'Sum',
+                      ),
+                      DropdownMenuEntry(
+                        value: 'average',
+                        label: 'Average',
+                      ),
                     ],
                   ),
                 ],
@@ -336,19 +345,29 @@ class GraphsPageState extends State<GraphsPage> {
     );
   }
 
-  Map<String, double> getSumByXAxis() {
-    Map<String, double> sumByCategory = {};
-    for (var data in workingData) {
-      String category = data[xAxis];
-      double value = double.parse(data[yAxis]); // Assuming 'value' is the key for the numeric data
-      if (sumByCategory.containsKey(category)) {
-        sumByCategory[category] = sumByCategory[category]! + value;
+  /*
+  Needs to return in the same format as the original data which is a list of a map
+  Loop through the working data and sum the values of the yAxis for each unique value of the xAxis
+  */
+  List<Map<String, dynamic>> getSumByXAxis() {
+    List<Map<String, dynamic>> sumByCategory = [];
+
+    for (var item in workingData) {
+      if (sumByCategory.isEmpty) {
+        sumByCategory.add(item);
       } else {
-        sumByCategory[category] = value;
+        for (var sumItem in sumByCategory) {
+          if (sumItem[xAxis] == item[xAxis]) {
+            sumItem[yAxis] += num.parse(item[yAxis]);
+          } else {
+            sumByCategory.add(item);
+          }
+        }
       }
     }
+    debugPrint('Sum by Category: $sumByCategory');
     return sumByCategory;
-}
+  }
 }
 
 class _SalesData {
