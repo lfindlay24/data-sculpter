@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:flutter_ui/pages/graphsPage.dart';
 import 'package:flutter_ui/pages/login.dart';
 
@@ -11,7 +12,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: appBar(),
       body: Center(
-        child: middleContent(),
+        child: middleContent(context),
       ),
       drawer: Drawer(
         child: mainDrawer(context),
@@ -58,15 +59,20 @@ class HomePage extends StatelessWidget {
             // Add your logic here
           },
         ),
-                ListTile(
+        ListTile(
           title: const Text('Graphs'),
           onTap: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => GraphsPage()));
+                context, MaterialPageRoute(builder: (context) => GraphsPage()));
           },
         ),
+        ListTile(
+          title: const Text('Insert Data'),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => DataInsertionPage()));
+          },
+        )
       ],
     );
   }
@@ -117,7 +123,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget middleContent() {
+  Widget middleContent(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -132,6 +138,9 @@ class HomePage extends StatelessWidget {
         ElevatedButton(
           onPressed: () {
             // Add your logic here
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => DataInsertionPage())
+            );
           },
           child: Text('Get Started'),
         ),
