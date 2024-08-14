@@ -2,6 +2,10 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/main.dart';
+import 'package:http/http.dart' as http;
+
+String basePath =
+    'https://gaz1vaikk5.execute-api.us-east-2.amazonaws.com/Stage';
 
 class DataInsertionPage extends StatefulWidget {
   @override
@@ -18,8 +22,12 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
   Widget build(BuildContext context) {
     if (pageData != null) {
       columnNames = pageData!.split('\n')[0].split(',');
-      rowData =
-          pageData!.split('\n').sublist(1).map((e) => e.split(',')).where((element) => element[0].isNotEmpty).toList();
+      rowData = pageData!
+          .split('\n')
+          .sublist(1)
+          .map((e) => e.split(','))
+          .where((element) => element[0].isNotEmpty)
+          .toList();
       debugPrint(rowData.toString());
     }
 
@@ -62,6 +70,9 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                         workingData.add(rowMap);
                       }
                       debugPrint('workingData: $workingData');
+                      if (email != '') {
+                        _saveToCloud(workingData);
+                      }
                     },
                     child: const Text('Save Data'),
                   ),
@@ -94,6 +105,16 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
       ),
     );
   }
+}
+
+void _saveToCloud(List<Map<String, dynamic>> workingData) async {
+  http.post(
+    Uri.parse('$basePath/data'),
+    body: {
+      'content': workingData.toString(),
+      'email': email,
+    },
+  );
 }
 
 Future<String> getFilePath() async {

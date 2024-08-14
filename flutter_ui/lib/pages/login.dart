@@ -37,6 +37,7 @@ class LoginScreen extends StatelessWidget {
     if (response.statusCode == 200) {
       //Success return null to return user to the Home Page
       auth = response.body;
+      email = data.name;
       debugPrint('Auth: $auth');
       return null;
     } else {

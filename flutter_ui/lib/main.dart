@@ -10,6 +10,7 @@ List<Map<String, dynamic>> workingData = [
 ];
 
 var auth = '';
+var email = '';
 
 void main() {
   runApp(const MyApp());
