@@ -12,16 +12,29 @@ Globals:
     MemorySize: 128
 
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  API:
+    Type: AWS::Serverless::Api # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
+      StageName: Dev
+      Auth:
+        DefaultAuthorizer: MyLambdaAuthorizer
+        Authorizers:
+          MyLambdaAuthorizer:
+            FunctionArn: !GetAtt AuthorizerFunction.Arn
+
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: create.lambda_handler
       Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        CreateUser:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /hello
@@ -82,3 +95,112 @@ Resources:
                 - !Ref S3Bucket
       Bucket: !Ref S3Bucket
 
+            RestApiId: !Ref API
+            Path: /user
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  UpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: update.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        UpdateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: PATCH
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: deleteUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        DeleteUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: DELETE
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: user_api/
+      Handler: getUser.lambda_handler
+      Runtime: python3.12
+      Timeout: 5
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/{userId}
+            Method: GET
+            Auth:
+              Authorizer: MyLambdaAuthorizer
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: authorizer/
+      Handler: login.lambda_handler
+      Runtime: python3.12
+      Timeout: 10
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /login
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  AuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: authorizer/
+      Handler: basic.lambda_handler
+      Runtime: python3.12
+      Timeout: 10
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures: 
+      - x86_64
+
+  UserTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: user_id
+        Type: String
+      TableName: ds_users
