@@ -22,6 +22,27 @@ Resources:
           MyLambdaAuthorizer:
             FunctionArn: !GetAtt AuthorizerFunction.Arn
 
+  DataInsertionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DataEndpoints/
+      Handler: DataInsertion.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+        - x86_64
+      Events:
+        DataInsertion:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /data
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -37,64 +58,6 @@ Resources:
         CreateUser:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
-            Method: get
-  
-  DataInsertionFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: DataEndpoints/
-      Handler: DataInsertion.lambda_handler
-      Runtime: python3.12
-      Architectures:
-        - x86_64
-      Events:
-        DataInsertion:
-          Type: Api
-          Properties:
-            Path: /data
-            Method: get
-
-  S3Bucket:
-    Type: 'AWS::S3::Bucket'
-    Properties:
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-
-  BucketPolicy:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-      PolicyDocument:
-        Id: MyPolicy
-        Version: 2012-10-17
-        Statement:
-          - Sid: PublicReadForGetBucketObjects
-            Effect: Allow
-            Principal: '*'
-            Action: 
-              - 's3:PutObject'
-              - 's3:GetObject'
-              - 's3:DeleteObject'
-            Resource: !Join 
-              - ''
-              - - 'arn:aws:s3:::'
-                - !Ref S3Bucket
-                - /*
-          - Sid: ListBucketPermission
-            Effect: Allow
-            Principal: '*'
-            Action: 's3:ListBucket'
-            Resource: !Join 
-              - ''
-              - - 'arn:aws:s3:::'
-                - !Ref S3Bucket
-      Bucket: !Ref S3Bucket
-
             RestApiId: !Ref API
             Path: /user
             Method: POST
@@ -204,3 +167,11 @@ Resources:
         Name: user_id
         Type: String
       TableName: ds_users
+  
+  UserJsonTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: json_id
+        Type: String
+      TableName: ds_user_json

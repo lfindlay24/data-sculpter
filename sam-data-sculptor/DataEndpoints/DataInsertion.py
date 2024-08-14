@@ -6,20 +6,29 @@ import json
 from datetime import datetime
  
 region_name = getenv('APP_REGION')
- 
+json_table = boto3.resource('dynamodb', region_name=region_name ).Table('ds_user_json')
  
 def lambda_handler(event, context):
-    bucket_name = event['Records'][0]['s3']['bucket']['name']
-    file_key = event['Records'][0]['s3']['object']['key']
+    # make a separate table with its own ID and a user ID
+    jsonId = str(uuid4())
+    body = json.loads(event['body'])
+    email = body['email']
+    content = body['content']
 
-    s3 = boto3.client('s3')
+    if not all([jsonId, body, email]):
+        return response(400, {"error":"Missing required fields"})
+    
+    try:
+        json_table.put_item(Item={
+            'json_id': jsonId,
+            'email': email,
+            'content': content
+        })
+    except Exception as e:
+        return response(500, {"error": str(e)})
+    
+    return response(200, {"id": jsonId})
 
-    response = s3.get_object(Bucket=bucket_name, Key=file_key)
-    file_content = response['Body'].read().decode('utf-8')
-
-    body = json.loads(file_content)
-
-    print(body)
 
 def response(code, body):
     return {
