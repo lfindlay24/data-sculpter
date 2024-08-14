@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: appBar(),
       body: Center(
-        child: middleContent(),
+        child: middleContent(context),
       ),
       drawer: Drawer(
         child: mainDrawer(context),
@@ -123,7 +123,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget middleContent() {
+  Widget middleContent(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -138,6 +138,9 @@ class HomePage extends StatelessWidget {
         ElevatedButton(
           onPressed: () {
             // Add your logic here
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => DataInsertionPage())
+            );
           },
           child: Text('Get Started'),
         ),

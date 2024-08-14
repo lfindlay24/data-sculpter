@@ -9,6 +9,8 @@ List<Map<String, dynamic>> workingData = [
   {'year': '2020', 'sales': '70'},
 ];
 
+var auth = '';
+
 void main() {
   runApp(const MyApp());
 }

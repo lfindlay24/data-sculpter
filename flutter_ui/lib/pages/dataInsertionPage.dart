@@ -19,7 +19,8 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
     if (pageData != null) {
       columnNames = pageData!.split('\n')[0].split(',');
       rowData =
-          pageData!.split('\n').sublist(1).map((e) => e.split(',')).toList();
+          pageData!.split('\n').sublist(1).map((e) => e.split(',')).where((element) => element[0].isNotEmpty).toList();
+      debugPrint(rowData.toString());
     }
 
     return Scaffold(
