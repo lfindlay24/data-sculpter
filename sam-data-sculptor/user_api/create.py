@@ -1,7 +1,6 @@
 import boto3
 from boto3.dynamodb.conditions import Attr
 from os import getenv
-from uuid import uuid4
 import json
 import bcrypt
 import time
@@ -26,7 +25,6 @@ def lambda_handler(event, context):
     if "password" not in body:
         return response(400, "Password is required")
 
-    user_id = str(uuid4())
     email = body["email"]
     
     hashing_start = time.time()
@@ -36,11 +34,9 @@ def lambda_handler(event, context):
     print(f"Hashing time: {hashing_end - hashing_start} seconds")
     print(f"Password: {hashed_password}")
     print(f"Email: {email}")
-    print(f"User ID: {user_id}")
 
     dynamo_start = time.time()
     users_table.put_item(Item={
-        "user_id": user_id,
         "email": email,
         "password": hashed_password
     })

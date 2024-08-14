@@ -245,4 +245,7 @@ $RECYCLE.BIN/
 
 .aws-sam/
 
+emailing-services/node_modules/
+emailing-services/package-lock.json
+
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

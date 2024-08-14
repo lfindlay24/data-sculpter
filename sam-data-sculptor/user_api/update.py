@@ -9,18 +9,16 @@ region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
 
 def lambda_handler(event, context):
+
+    if "body" not in event:
+        return response(400, "no body found")
     
     body = json.loads(event["body"])
-
-    if "pathParameters" not in event:
-        return response(400, "no path parameters found")
+    if body is None or "email" not in body:
+        return response(400, "no email found in body")
     
-    path = event["pathParameters"]
-    if path is None or "userId" not in path:
-        return response(400, "no user id found in path")
-    
-    user_id = path["userId"]
-    user = users_table.get_item(Key={"user_id": user_id})
+    email = body["email"]
+    user = users_table.get_item(Key={"email": email})
     print(user)
     if "Item" not in user:
         return response(404, "user not found")
@@ -33,10 +31,10 @@ def lambda_handler(event, context):
     if not check_password(body["old_password"], hashed_password):
         return response(400, "incorrect old password")
     
-    if "email" in body:
-        user["email"] = body["email"]
-    if "new_password" in body:
-        user["password"] = salt_hash_password(body["new_password"])
+    if "new_password" not in body:
+        return response(400, "new password is required")
+    
+    user["password"] = salt_hash_password(body["new_password"])
     
     users_table.put_item(Item=user)
 

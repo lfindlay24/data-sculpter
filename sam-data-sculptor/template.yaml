@@ -59,8 +59,8 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
-            Method: PATCH
+            Path: /user
+            Method: PUT
             Auth:
               Authorizer: MyLambdaAuthorizer
 
@@ -80,7 +80,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
+            Path: /user
             Method: DELETE
             Auth:
               Authorizer: MyLambdaAuthorizer
@@ -101,7 +101,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
+            Path: /user
             Method: GET
             Auth:
               Authorizer: MyLambdaAuthorizer
@@ -127,6 +127,27 @@ Resources:
             Auth:
               Authorizer: NONE
 
+  ForgotPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: emailing-services/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        ForgotPassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/forgot-password
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
   AuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -143,6 +164,6 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: user_id
+        Name: email
         Type: String
       TableName: ds_users

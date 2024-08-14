@@ -1,26 +1,27 @@
 import boto3
 from boto3.dynamodb.conditions import Key
 from os import getenv
+import json
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
 
 def lambda_handler(event, context):
 
-    if "pathParameters" not in event:
-        return response(400, "no path parameters found")
+    if "body" not in event:
+        return response(400, "no body found")
     
-    path = event["pathParameters"]
-    if path is None or "userId" not in path:
-        return response(400, "no user id found in path")
+    body = json.loads(event["body"])
+    if body is None or "email" not in body:
+        return response(400, "no email found in body")
     
-    user_id = path["userId"]
-    user = users_table.get_item(Key={"user_id": user_id})
+    email = body["email"]
+    user = users_table.get_item(Key={"email": email})
     print(user)
     if "Item" not in user:
         return response(404, "user not found")
     
-    users_table.delete_item(Key={"user_id": user_id})
+    users_table.delete_item(Key={"email": email})
 
     return response(200, "User deleted")
 
