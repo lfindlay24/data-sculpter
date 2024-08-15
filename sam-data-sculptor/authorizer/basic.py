@@ -34,7 +34,7 @@ def lambda_handler(event, context):
     hashed_password = hashed_password_bytes.decode('utf-8')
     print(hashed_password)
 
-    print(f"User_id: {user['user_id']}, Email: {user['email']}, Password: {hashed_password_bytes.decode('utf-8')}")
+    print(f"Email: {user['email']}, Password: {hashed_password_bytes.decode('utf-8')}")
 
     if check_password(password, hashed_password):
         auth = "Allow"

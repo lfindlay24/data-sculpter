@@ -9,23 +9,19 @@ users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_user
 
 def lambda_handler(event, context):
 
-    print(event)
+    headers = event["headers"]
 
-    if "pathParameters" not in event:
-        return response(400, "no path parameters found")
+    if "email" not in headers or headers["email"] is None:
+        return response(400, "no email found")
     
-    path = event["pathParameters"]
-    if path is None or "userId" not in path:
-        return response(400, "no user id found in path")
+    email = headers["email"]
     
-    user_id = path["userId"]
-    user = users_table.get_item(Key={"user_id": user_id})
+    user = users_table.get_item(Key={"email": email})
 
     if "Item" not in user:
         return response(404, "user not found")
     
     return_User = {}
-    return_User["user_id"] = user["Item"]["user_id"]
     return_User["email"] = user["Item"]["email"]
     hashed_password_bytes = bytes(user["Item"]["password"])
     hashed_password = hashed_password_bytes.decode('utf-8')

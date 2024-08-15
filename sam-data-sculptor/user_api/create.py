@@ -1,7 +1,7 @@
 import boto3
 from boto3.dynamodb.conditions import Attr
+from botocore.exceptions import ClientError
 from os import getenv
-from uuid import uuid4
 import json
 import bcrypt
 import time
@@ -9,6 +9,8 @@ from base64 import b64encode
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
+sqs_client = boto3.client('sqs', region_name=region_name)
+sqs_url = "https://sqs.us-east-2.amazonaws.com/339712966749/ds_message_queue.fifo"
 
 def lambda_handler(event, context):
 
@@ -26,7 +28,6 @@ def lambda_handler(event, context):
     if "password" not in body:
         return response(400, "Password is required")
 
-    user_id = str(uuid4())
     email = body["email"]
     
     hashing_start = time.time()
@@ -36,11 +37,9 @@ def lambda_handler(event, context):
     print(f"Hashing time: {hashing_end - hashing_start} seconds")
     print(f"Password: {hashed_password}")
     print(f"Email: {email}")
-    print(f"User ID: {user_id}")
 
     dynamo_start = time.time()
     users_table.put_item(Item={
-        "user_id": user_id,
         "email": email,
         "password": hashed_password
     })
@@ -52,6 +51,13 @@ def lambda_handler(event, context):
     encoded = b64encode(stringtoencode.encode('utf-8'))
     print(f"Encoded: {encoded}")
 
+    print(send_message({
+        "recipient": body["email"], 
+        "subject": "Welcome to Data Sculptor",
+        "message": "Welcome to Data Sculptor! You have successfully created an account."
+    }))
+
+
     return response(200, {"Authorization": encoded.decode("utf-8")})
 
 def salt_hash_password(password):
@@ -59,6 +65,24 @@ def salt_hash_password(password):
     salt = bcrypt.gensalt()  # Adjust rounds for faster hashing
     hash = bcrypt.hashpw(encoded, salt)
     return hash
+
+def send_message(message_body, message_group_id="emails"):
+    try:
+        message_response = sqs_client.send_message(
+            QueueUrl=sqs_url,
+            MessageBody=json.dumps(message_body),
+            MessageAttributes={
+                'Author': {
+                    'DataType': 'String',
+                    'StringValue': 'Email Request'
+                }
+            },
+            MessageGroupId=message_group_id
+        )
+        return message_response
+    except ClientError as e:
+        print(f"Error sending message: {e}")
+        return None
 
 def response(code, body):
     return {

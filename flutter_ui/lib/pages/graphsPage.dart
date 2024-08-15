@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ui/main.dart';
+import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
@@ -11,6 +13,8 @@ class GraphsPage extends StatefulWidget {
 }
 
 class GraphsPageState extends State<GraphsPage> {
+  String xAxis = workingData[0].keys.first;
+  String yAxis = workingData[0].keys.last;
   List<_SalesData> data = [
     _SalesData('Jan', 35),
     _SalesData('Feb', -28),
@@ -25,87 +29,27 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (workingData.isEmpty) {
+      workingData = [];
+    }
+    debugPrint('workingData: $workingData');
+    debugPrint('year: ${workingData[0]['year']}');
+    debugPrint('sales: ${workingData[0]['sales']}');
+    debugPrint('Keys: ${workingData[0].keys}');
+    debugPrint('first object: ${workingData[0]}');
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Data Analysis Page'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.pie_chart),
-              color: _chartType != 'pie' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'pie';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.show_chart),
-              color: _chartType != 'line' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'line';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.details),
-              color: _chartType != 'pyramid' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'pyramid';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.filter_alt),
-              color: _chartType != 'funnel' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'funnel';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.star_border),
-              color: _chartType != 'spark' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'spark';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.star),
-              color: _chartType != 'sparkArea' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'sparkArea';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.bar_chart),
-              color: _chartType != 'sparkBar' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'sparkBar';
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.sports_score),
-              color: _chartType != 'sparkWin' ? Colors.grey : Colors.green,
-              onPressed: () {
-                setState(() {
-                  _chartType = 'sparkWin';
-                });
-              },
-            ),
-          ],
-        ),
-        body: Column(children: [
-          Expanded(
-            child: SingleChildScrollView(
+      appBar: graphBar(),
+      body: mainGraphContent(context),
+    );
+  }
+
+  Column mainGraphContent(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -113,18 +57,27 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfCartesianChart(
+                        trackballBehavior: TrackballBehavior(
+                            enable: true,
+                            activationMode: ActivationMode.singleTap),
                         primaryXAxis: CategoryAxis(),
-                        title:
-                            const ChartTitle(text: 'Half yearly sales analysis'),
-                        series: <CartesianSeries<_SalesData, String>>[
-                          LineSeries<_SalesData, String>(
-                              dataSource: data,
-                              xValueMapper: (_SalesData sales, _) => sales.year,
-                              yValueMapper: (_SalesData sales, _) => sales.sales,
+                        title: const ChartTitle(
+                            text: 'Half yearly sales analysis'),
+                        series: <CartesianSeries<Map<String, dynamic>, String>>[
+                          LineSeries<Map<String, dynamic>, String>(
+                              dataSource: workingData,
+                              xValueMapper:
+                                  (Map<String, dynamic> workingData, _) {
+                                return workingData[xAxis];
+                              },
+                              yValueMapper:
+                                  (Map<String, dynamic> workingData, _) {
+                                return num.parse(workingData[yAxis]);
+                              },
                               name: 'Sales',
                               // Enable data label
                               dataLabelSettings:
-                                  DataLabelSettings(isVisible: true))
+                                  const DataLabelSettings(isVisible: true))
                         ],
                       ),
                     )
@@ -134,13 +87,18 @@ class GraphsPageState extends State<GraphsPage> {
                       child: SfCircularChart(
                         title: const ChartTitle(text: 'Sales distribution'),
                         series: <CircularSeries>[
-                          PieSeries<_SalesData, String>(
+                          PieSeries<Map<String, dynamic>, String>(
                             explode: true,
-                            dataSource: data,
-                            xValueMapper: (_SalesData sales, _) => sales.year,
-                            yValueMapper: (_SalesData sales, _) => sales.sales,
-                            dataLabelMapper: (_SalesData sales, _) =>
-                                sales.sales.toString(),
+                            dataSource: workingData,
+                            xValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    workingData[xAxis],
+                            yValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    num.parse(workingData[yAxis]),
+                            dataLabelMapper: (Map<String, dynamic> workingData,
+                                    _) =>
+                                '${workingData[xAxis]}, ${workingData[yAxis].toString()}',
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )
@@ -152,10 +110,14 @@ class GraphsPageState extends State<GraphsPage> {
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfPyramidChart(
                           title: const ChartTitle(text: 'Sales distribution'),
-                          series: PyramidSeries<_SalesData, String>(
-                            dataSource: data,
-                            xValueMapper: (_SalesData sales, _) => sales.year,
-                            yValueMapper: (_SalesData sales, _) => sales.sales,
+                          series: PyramidSeries<Map<String, dynamic>, String>(
+                            dataSource: workingData,
+                            xValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    workingData[xAxis],
+                            yValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    num.parse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -165,10 +127,14 @@ class GraphsPageState extends State<GraphsPage> {
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfFunnelChart(
                           title: const ChartTitle(text: 'Sales distribution'),
-                          series: FunnelSeries<_SalesData, String>(
-                            dataSource: data,
-                            xValueMapper: (_SalesData sales, _) => sales.year,
-                            yValueMapper: (_SalesData sales, _) => sales.sales,
+                          series: FunnelSeries<Map<String, dynamic>, String>(
+                            dataSource: workingData,
+                            xValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    workingData[xAxis],
+                            yValueMapper:
+                                (Map<String, dynamic> workingData, _) =>
+                                    num.parse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -177,7 +143,9 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfSparkLineChart(
-                          data: data.map((e) => e.sales).toList(),
+                          data: workingData
+                              .map((e) => num.parse(e[yAxis]))
+                              .toList(),
                           plotBand: const SparkChartPlotBand(
                               start: 0,
                               end: 2,
@@ -189,7 +157,9 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfSparkAreaChart(
-                          data: data.map((e) => e.sales).toList(),
+                          data: workingData
+                              .map((e) => num.parse(e[yAxis]))
+                              .toList(),
                           plotBand: const SparkChartPlotBand(
                               start: 0,
                               end: 2,
@@ -201,7 +171,9 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfSparkBarChart(
-                          data: data.map((e) => e.sales).toList(),
+                          data: workingData
+                              .map((e) => num.parse(e[yAxis]))
+                              .toList(),
                           plotBand: const SparkChartPlotBand(
                               start: 0,
                               end: 2,
@@ -213,14 +185,130 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfSparkWinLossChart(
-                        data: data.map((e) => e.sales).toList(),
+                        data: workingData
+                            .map((e) => num.parse(e[yAxis]))
+                            .toList(),
                       ),
                     ),
+                  DropdownMenu<String>(
+                    label: const Text('Select X Axis'),
+                    onSelected: (String? value) {
+                      setState(() {
+                        xAxis = value!;
+                      });
+                    },
+                    dropdownMenuEntries: [
+                      for (var key in workingData[0].keys)
+                        if (num.tryParse(workingData[0][key]) == null)
+                          DropdownMenuEntry<String>(
+                            value: key,
+                            label: key.capitalize(),
+                          )
+                    ],
+                  ),
+                  DropdownMenu<String>(
+                    label: const Text('Select Y Axis'),
+                    onSelected: (String? value) {
+                      setState(() {
+                        yAxis = value!;
+                      });
+                    },
+                    dropdownMenuEntries: [
+                      for (var key in workingData[0].keys)
+                        if (num.tryParse(workingData[0][key]) != null)
+                          DropdownMenuEntry<String>(
+                            value: key,
+                            label: key.capitalize(),
+                          )
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
-        ],),);
+        ),
+      ],
+    );
+  }
+
+  AppBar graphBar() {
+    return AppBar(
+      title: const Text('Data Analysis Page'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.pie_chart),
+          color: _chartType != 'pie' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'pie';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.show_chart),
+          color: _chartType != 'line' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'line';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.details),
+          color: _chartType != 'pyramid' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'pyramid';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.filter_alt),
+          color: _chartType != 'funnel' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'funnel';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.star_border),
+          color: _chartType != 'spark' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'spark';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.star),
+          color: _chartType != 'sparkArea' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkArea';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.bar_chart),
+          color: _chartType != 'sparkBar' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkBar';
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.sports_score),
+          color: _chartType != 'sparkWin' ? Colors.grey : Colors.green,
+          onPressed: () {
+            setState(() {
+              _chartType = 'sparkWin';
+            });
+          },
+        ),
+      ],
+    );
   }
 }
 

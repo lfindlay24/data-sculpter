@@ -73,6 +73,7 @@ Resources:
       Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
         - x86_64
       Events:
@@ -94,6 +95,7 @@ Resources:
       Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
@@ -101,10 +103,10 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
-            Method: PATCH
+            Path: /user
+            Method: PUT
             Auth:
-              Authorizer: MyLambdaAuthorizer
+              Authorizer: NONE
 
   DeleteUserFunction:
     Type: AWS::Serverless::Function
@@ -115,6 +117,7 @@ Resources:
       Timeout: 5
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
@@ -122,7 +125,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
+            Path: /user
             Method: DELETE
             Auth:
               Authorizer: MyLambdaAuthorizer
@@ -143,7 +146,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref API
-            Path: /user/{userId}
+            Path: /user
             Method: GET
             Auth:
               Authorizer: MyLambdaAuthorizer
@@ -157,6 +160,7 @@ Resources:
       Timeout: 10
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
@@ -168,6 +172,45 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+
+  ForgotPasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: emailing-services/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        ForgotPassword:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /user/forgot-password
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  EmailerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: emailing-services/
+      Handler: emailer.handler
+      Runtime: nodejs20.x
+      Timeout: 10
+      Policies:
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-2:339712966749:ds_message_queue.fifo
+            BatchSize: 1
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function
@@ -185,7 +228,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: user_id
+        Name: email
         Type: String
       TableName: ds_users
   
