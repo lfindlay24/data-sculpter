@@ -8,7 +8,7 @@ architecture = "x86_64"
 handler = "DataInsertion.lambda_handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["DataInsertionFunction"]
+functions = ["DataInsertionFunction", "DataReadFunction"]
 
 [function_build_definitions.d1fd3e8b-454e-42c3-a27c-4b20ab4b5075]
 codeuri = "C:\\Users\\jkirkham\\source\\repos\\DataSculptorProject\\DataSculptor\\data-sculpter\\sam-data-sculptor\\user_api"
