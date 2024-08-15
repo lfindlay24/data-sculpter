@@ -8,6 +8,8 @@ from base64 import b64encode
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
+sqs_client = boto3.client('sqs', region_name=region_name)
+sqs_url = "https://sqs.us-east-2.amazonaws.com/339712966749/ds_message_queue.fifo"
 
 def lambda_handler(event, context):
 
@@ -61,7 +63,13 @@ def lambda_handler(event, context):
     encoded = b64encode(stringtoencode.encode('utf-8'))
     print(f"Encoded: {encoded}")
 
-    return response(200, {"Authorization": encoded.decode("utf-8")})
+    message_response = send_message({
+        "recipient": body["email"],
+        "subject": "Password Changed",
+        "message": "Your password has been successfully changed"
+    })
+
+    return response(200, {"Authorization": encoded.decode("utf-8"), "MessageResponse": message_response})
 
 def salt_hash_password(password):
     encoded = password.encode('utf-8')
@@ -71,6 +79,24 @@ def salt_hash_password(password):
 
 def check_password(password, hashed_password):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def send_message(message_body, message_group_id="emails"):
+    try:
+        message_response = sqs_client.send_message(
+            QueueUrl=sqs_url,
+            MessageBody=json.dumps(message_body),
+            MessageAttributes={
+                'Author': {
+                    'DataType': 'String',
+                    'StringValue': 'Email Request'
+                }
+            },
+            MessageGroupId=message_group_id
+        )
+        return message_response
+    except ClientError as e:
+        print(f"Error sending message: {e}")
+        return None
 
 def response(code, body):
 

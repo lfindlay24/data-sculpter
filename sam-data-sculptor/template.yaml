@@ -31,6 +31,7 @@ Resources:
       Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
         - x86_64
       Events:
@@ -52,6 +53,7 @@ Resources:
       Timeout: 15
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
@@ -73,6 +75,7 @@ Resources:
       Timeout: 5
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
@@ -115,6 +118,7 @@ Resources:
       Timeout: 10
       Policies:
         - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
       Architectures:
       - x86_64
       Events:
