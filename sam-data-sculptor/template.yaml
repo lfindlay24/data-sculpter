@@ -22,6 +22,48 @@ Resources:
           MyLambdaAuthorizer:
             FunctionArn: !GetAtt AuthorizerFunction.Arn
 
+  DataInsertionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DataEndpoints/
+      Handler: DataInsertion.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+        - x86_64
+      Events:
+        DataInsertion:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /data
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  DataReadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DataEndpoints/
+      Handler: DataRead.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+        - x86_64
+      Events:
+        DataRead:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /data
+            Method: GET
+            Auth:
+              Authorizer: NONE
+
   CreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -189,3 +231,11 @@ Resources:
         Name: email
         Type: String
       TableName: ds_users
+  
+  UserJsonTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: json_id
+        Type: String
+      TableName: ds_user_json
