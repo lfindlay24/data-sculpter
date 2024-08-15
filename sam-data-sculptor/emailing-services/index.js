@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendEmail(email, password) {
     const info = await transporter.sendMail({
-        from: '"Data Sculptor" <dock.medhurst@ethereal.email',
+        from: '"Data Sculptor" <dock.medhurst@ethereal.email>',
         to: email,
         subject: 'Temporary Password',
         text: 'Your temporary password is ' + password

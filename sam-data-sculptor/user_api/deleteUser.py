@@ -1,10 +1,13 @@
 import boto3
 from boto3.dynamodb.conditions import Key
+from botocore.exceptions import ClientError
 from os import getenv
 import json
 
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
+sqs_client = boto3.client('sqs', region_name=region_name)
+sqs_url = "https://sqs.us-east-2.amazonaws.com/339712966749/ds_message_queue.fifo"
 
 def lambda_handler(event, context):
 
@@ -23,7 +26,31 @@ def lambda_handler(event, context):
     
     users_table.delete_item(Key={"email": email})
 
+    print(send_message({
+        "recipient": body["email"], 
+        "subject": "You have deleted your account.",
+        "message": "You have deleted your Data Sculptor account. Sorry to see you go.:("
+    }))
+
     return response(200, "User deleted")
+
+def send_message(message_body, message_group_id="emails"):
+    try:
+        message_response = sqs_client.send_message(
+            QueueUrl=sqs_url,
+            MessageBody=json.dumps(message_body),
+            MessageAttributes={
+                'Author': {
+                    'DataType': 'String',
+                    'StringValue': 'Email Request'
+                }
+            },
+            MessageGroupId=message_group_id
+        )
+        return message_response
+    except ClientError as e:
+        print(f"Error sending message: {e}")
+        return None
 
 def response(code, body):
     return {
