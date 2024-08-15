@@ -69,7 +69,7 @@ def lambda_handler(event, context):
         "message": "Your password has been successfully changed"
     })
 
-    return response(200, {"Authorization": encoded.decode("utf-8"), "MessageResponse": message_response})
+    return response(200, {"Authorization": encoded.decode("utf-8")})
 
 def salt_hash_password(password):
     encoded = password.encode('utf-8')
