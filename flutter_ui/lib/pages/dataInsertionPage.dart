@@ -3,9 +3,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/main.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 String basePath =
-    'https://gaz1vaikk5.execute-api.us-east-2.amazonaws.com/Stage';
+    'https://m1yf7zt55f.execute-api.us-east-2.amazonaws.com/Dev';
 
 class DataInsertionPage extends StatefulWidget {
   @override
@@ -70,7 +71,9 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                         workingData.add(rowMap);
                       }
                       debugPrint('workingData: $workingData');
+                      debugPrint('email: $email');
                       if (email != '') {
+                        debugPrint('Saving to cloud');
                         _saveToCloud(workingData);
                       }
                     },
@@ -108,13 +111,16 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
 }
 
 void _saveToCloud(List<Map<String, dynamic>> workingData) async {
-  http.post(
+  var body = {
+      "content": workingData,
+      "email": email,
+    };
+  var response = await http.post(
     Uri.parse('$basePath/data'),
-    body: {
-      'content': workingData.toString(),
-      'email': email,
-    },
+    body: json.encode(body),
   );
+  debugPrint('Status: $response.statusCode');
+  debugPrint('Response: ${response.body}');
 }
 
 Future<String> getFilePath() async {

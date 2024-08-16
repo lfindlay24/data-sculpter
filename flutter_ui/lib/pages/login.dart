@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   final String basePath =
-      'https://v8r5i44rf8.execute-api.us-east-2.amazonaws.com/Dev';
+      'https://m1yf7zt55f.execute-api.us-east-2.amazonaws.com/Dev';
 
   Future<String?> _authUser(LoginData data) async {
     debugPrint('Email: ${data.name}, Password: ${data.password}');

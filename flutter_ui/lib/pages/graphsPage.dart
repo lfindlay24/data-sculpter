@@ -358,9 +358,10 @@ class GraphsPageState extends State<GraphsPage> {
       } else {
         for (var sumItem in sumByCategory) {
           if (sumItem[xAxis] == item[xAxis]) {
-            sumItem[yAxis] += num.parse(item[yAxis]);
+            sumItem[yAxis] =
+                (num.parse(item[yAxis]) + num.parse(sumItem[yAxis])).toString();
           } else {
-            sumByCategory.add(item);
+            //sumByCategory.add(item);
           }
         }
       }
