@@ -5,8 +5,6 @@ import 'package:flutter_ui/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
-
 class DataInsertionPage extends StatefulWidget {
   @override
   _DataInsertionPageState createState() => _DataInsertionPageState();
@@ -74,7 +72,6 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                       if (email != '') {
                         _dialogBuilder(context);
                         debugPrint('Saving to cloud');
-                        _saveToCloud(workingData);
                       }
                     },
                     child: const Text('Save Data'),
@@ -111,45 +108,40 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
 }
 
 Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Please enter a title before saving to the cloud'),
-          content: const Text(
-            'A dialog is a type of modal window that\n'
-            'appears in front of app content to\n'
-            'provide critical information, or prompt\n'
-            'for a decision to be made.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Disable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Enable'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  final titleController = TextEditingController();
 
-void _saveToCloud(List<Map<String, dynamic>> workingData) async {
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Please enter a title before saving to the cloud'),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Title',
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.labelLarge,
+            ),
+            child: const Text('Submit'),
+            onPressed: () {
+              _saveToCloud(workingData, titleController.text);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _saveToCloud(List<Map<String, dynamic>> workingData, String title) async {
   var body = {
-    "content": workingData,
+    "content": {"data": workingData, "title": title},
     "email": email,
   };
   var response = await http.post(
