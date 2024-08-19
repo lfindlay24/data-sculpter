@@ -25,7 +25,7 @@ class GraphsPageState extends State<GraphsPage> {
     _SalesData('Apr', -2),
     _SalesData('May', 40)
   ];
-  List<String> userData = [];
+  List<_CloudData> userData = [];
 
   List<int> winData = [1, -1, 1, -1, 1];
 
@@ -63,6 +63,7 @@ class GraphsPageState extends State<GraphsPage> {
                     DropdownMenu<String>(
                       label: const Text('Select Available Data'),
                       onSelected: (String? value) {
+                        debugPrint('Data: $value');
                         setState(() {
                           workingData = json.decode(value!);
                         });
@@ -70,8 +71,8 @@ class GraphsPageState extends State<GraphsPage> {
                       dropdownMenuEntries: [
                         for (var columns in userData)
                           DropdownMenuEntry<String>(
-                            value: columns,
-                            label: columns,
+                            value: json.encode(columns.jsonData),
+                            label: columns.title,
                           )
                       ],
                     ),
@@ -393,39 +394,42 @@ class GraphsPageState extends State<GraphsPage> {
     return sumByCategory;
   }
 
-
-    void getUserCloudData() async {
-    List<String> cloudData = [];
+  void getUserCloudData() async {
+    List<_CloudData> cloudData = [];
     var headers = {
       'Content-Type': 'application/json',
       'email': email,
     };
 
-    var response = await http.get(
-      Uri.parse('$basePath/data'),
-      headers: headers
-    );
+    var response =
+        await http.get(Uri.parse('$basePath/data'), headers: headers);
 
     if (response.statusCode == 200) {
       var body = json.decode(response.body);
       for (var data in body['Items']) {
-        cloudData.add(data['content'].toString());
+        debugPrint('Data: ${data['content']['data']}');
+        cloudData.add(_CloudData(data['content']['title'], data['content']['data']));
       }
+      debugPrint('Cloud Data: $cloudData');
       setState(() {
         userData = cloudData;
       });
     } else {
       debugPrint('Error: ${response.body}');
     }
-  } 
-
+  }
 }
-
-
 
 class _SalesData {
   _SalesData(this.year, this.sales);
 
   final String year;
   final double sales;
+}
+
+class _CloudData {
+  _CloudData(this.title, this.jsonData);
+
+  final String title;
+  final List<dynamic> jsonData;
 }
