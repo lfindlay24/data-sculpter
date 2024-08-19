@@ -72,6 +72,7 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                       debugPrint('workingData: $workingData');
                       debugPrint('email: $email');
                       if (email != '') {
+                        _dialogBuilder(context);
                         debugPrint('Saving to cloud');
                         _saveToCloud(workingData);
                       }
@@ -108,6 +109,43 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
     );
   }
 }
+
+Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Please enter a title before saving to the cloud'),
+          content: const Text(
+            'A dialog is a type of modal window that\n'
+            'appears in front of app content to\n'
+            'provide critical information, or prompt\n'
+            'for a decision to be made.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Disable'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
+              child: const Text('Enable'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 void _saveToCloud(List<Map<String, dynamic>> workingData) async {
   var body = {

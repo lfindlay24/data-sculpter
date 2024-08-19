@@ -64,7 +64,7 @@ class GraphsPageState extends State<GraphsPage> {
                       label: const Text('Select Available Data'),
                       onSelected: (String? value) {
                         setState(() {
-                          //yAxis = value!;
+                          workingData = json.decode(value!);
                         });
                       },
                       dropdownMenuEntries: [
