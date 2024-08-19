@@ -5,8 +5,7 @@ import 'package:flutter_ui/main.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-String basePath =
-    'https://m1yf7zt55f.execute-api.us-east-2.amazonaws.com/Dev';
+
 
 class DataInsertionPage extends StatefulWidget {
   @override
@@ -112,9 +111,9 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
 
 void _saveToCloud(List<Map<String, dynamic>> workingData) async {
   var body = {
-      "content": workingData,
-      "email": email,
-    };
+    "content": workingData,
+    "email": email,
+  };
   var response = await http.post(
     Uri.parse('$basePath/data'),
     body: json.encode(body),

@@ -11,6 +11,7 @@ List<Map<String, dynamic>> workingData = [
 
 var auth = '';
 var email = '';
+String basePath = 'https://m1yf7zt55f.execute-api.us-east-2.amazonaws.com/Dev';
 
 void main() {
   runApp(const MyApp());

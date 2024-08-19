@@ -3,6 +3,8 @@ import 'package:flutter_ui/main.dart';
 import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GraphsPage extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
@@ -23,6 +25,7 @@ class GraphsPageState extends State<GraphsPage> {
     _SalesData('Apr', -2),
     _SalesData('May', 40)
   ];
+  List<String> userData = [];
 
   List<int> winData = [1, -1, 1, -1, 1];
 
@@ -33,9 +36,13 @@ class GraphsPageState extends State<GraphsPage> {
     if (workingData.isEmpty) {
       workingData = [];
     }
+    if (email != '' && userData.isEmpty) {
+      getUserCloudData();
+    }
     debugPrint('Keys: ${workingData[0].keys}');
     debugPrint('first object: ${workingData[0]}');
     debugPrint('Number Modifier: $numberModifier');
+    debugPrint('User Data: $userData');
     return Scaffold(
       appBar: graphBar(),
       body: mainGraphContent(context),
@@ -52,6 +59,22 @@ class GraphsPageState extends State<GraphsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (email != '' && userData.isNotEmpty)
+                    DropdownMenu<String>(
+                      label: const Text('Select Available Data'),
+                      onSelected: (String? value) {
+                        setState(() {
+                          //yAxis = value!;
+                        });
+                      },
+                      dropdownMenuEntries: [
+                        for (var columns in userData)
+                          DropdownMenuEntry<String>(
+                            value: columns,
+                            label: columns,
+                          )
+                      ],
+                    ),
                   if (_chartType == 'line')
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
@@ -369,7 +392,36 @@ class GraphsPageState extends State<GraphsPage> {
     debugPrint('Sum by Category: $sumByCategory');
     return sumByCategory;
   }
+
+
+    void getUserCloudData() async {
+    List<String> cloudData = [];
+    var headers = {
+      'Content-Type': 'application/json',
+      'email': email,
+    };
+
+    var response = await http.get(
+      Uri.parse('$basePath/data'),
+      headers: headers
+    );
+
+    if (response.statusCode == 200) {
+      var body = json.decode(response.body);
+      for (var data in body['Items']) {
+        cloudData.add(data['content'].toString());
+      }
+      setState(() {
+        userData = cloudData;
+      });
+    } else {
+      debugPrint('Error: ${response.body}');
+    }
+  } 
+
 }
+
+
 
 class _SalesData {
   _SalesData(this.year, this.sales);
