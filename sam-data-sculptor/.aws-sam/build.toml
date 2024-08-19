@@ -8,7 +8,7 @@ architecture = "x86_64"
 handler = "DataInsertion.lambda_handler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["DataInsertionFunction", "DataReadFunction"]
+functions = ["DataInsertionFunction", "DataReadFunction", "DataUpdateFunction", "DataDeleteFunction"]
 
 [function_build_definitions.d1fd3e8b-454e-42c3-a27c-4b20ab4b5075]
 codeuri = "C:\\Users\\jkirkham\\source\\repos\\DataSculptorProject\\DataSculptor\\data-sculpter\\sam-data-sculptor\\user_api"
@@ -27,5 +27,14 @@ handler = "login.lambda_handler"
 manifest_hash = "51f01b313d48b72f46376150e6e12a98"
 packagetype = "Zip"
 functions = ["LoginFunction", "AuthorizerFunction"]
+
+[function_build_definitions.e83bd8da-cca9-4c40-a14c-6da66bb767e5]
+codeuri = "C:\\Users\\jkirkham\\source\\repos\\DataSculptorProject\\DataSculptor\\data-sculpter\\sam-data-sculptor\\emailing-services"
+runtime = "nodejs20.x"
+architecture = "x86_64"
+handler = "index.handler"
+manifest_hash = "eecb52b1793fc4719ede8c04b705acd8"
+packagetype = "Zip"
+functions = ["ForgotPasswordFunction"]
 
 [layer_build_definitions]
