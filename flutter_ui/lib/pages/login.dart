@@ -92,19 +92,26 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterLogin(
-      title: 'Data Sculptor',
-      userType: LoginUserType.email,
-      logo: const AssetImage('assets/images/Logo.png'),
-      onLogin: _authUser,
-      onSignup: _signupUser,
-      onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ));
-      },
-      onRecoverPassword: _recoverPassword,
-      onConfirmRecover: _confirmRecoverPassword,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Leave'),
+        backgroundColor: const Color.fromARGB(255, 103, 80, 164),
+      ),
+      body: FlutterLogin(
+        title: 'Data Sculptor',
+        scrollable: true,
+        userType: LoginUserType.email,
+        logo: const AssetImage('assets/images/Logo.png'),
+        onLogin: _authUser,
+        onSignup: _signupUser,
+        onSubmitAnimationCompleted: () {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ));
+        },
+        onRecoverPassword: _recoverPassword,
+        onConfirmRecover: _confirmRecoverPassword,
+      ),
     );
   }
 

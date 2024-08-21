@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:flutter_ui/pages/graphsPage.dart';
 import 'package:flutter_ui/pages/login.dart';
+import 'package:flutter_ui/main.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -107,6 +108,18 @@ class HomePage extends StatelessWidget {
             color: Colors.grey[200],
           ),
           child: Builder(builder: (context) {
+            if (email != '') {
+              return IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () {
+                  auth = '';
+                  email = '';
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const HomePage()));
+                },
+                tooltip: 'Logout',
+              );
+            }
             return IconButton(
               icon: const Icon(Icons.login),
               onPressed: () {
