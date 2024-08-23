@@ -7,7 +7,7 @@ import json
 region_name = getenv('APP_REGION')
 users_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_users')
 sqs_client = boto3.client('sqs', region_name=region_name)
-sqs_url = "https://sqs.us-east-2.amazonaws.com/339712966749/ds_message_queue.fifo"
+sqs_url = getenv('SQS_URL')
 
 def lambda_handler(event, context):
 
