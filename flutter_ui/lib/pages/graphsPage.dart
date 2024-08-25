@@ -3,6 +3,8 @@ import 'package:flutter_ui/main.dart';
 import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GraphsPage extends StatefulWidget {
   // ignore: prefer_const_constructors_in_immutables
@@ -13,8 +15,9 @@ class GraphsPage extends StatefulWidget {
 }
 
 class GraphsPageState extends State<GraphsPage> {
-  String xAxis = workingData[0].keys.first;
-  String yAxis = workingData[0].keys.last;
+  String  xAxis = workingData.isNotEmpty ? workingData[0].keys.first : '';
+  String  yAxis = workingData.isNotEmpty ? workingData[0].keys.last : '';
+  String numberModifier = 'none';
   List<_SalesData> data = [
     _SalesData('Jan', 35),
     _SalesData('Feb', -28),
@@ -22,6 +25,7 @@ class GraphsPageState extends State<GraphsPage> {
     _SalesData('Apr', -2),
     _SalesData('May', 40)
   ];
+  List<_CloudData> userData = [];
 
   List<int> winData = [1, -1, 1, -1, 1];
 
@@ -29,14 +33,18 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
+
     if (workingData.isEmpty) {
       workingData = [];
     }
-    debugPrint('workingData: $workingData');
-    debugPrint('year: ${workingData[0]['year']}');
-    debugPrint('sales: ${workingData[0]['sales']}');
-    debugPrint('Keys: ${workingData[0].keys}');
-    debugPrint('first object: ${workingData[0]}');
+    if (email != '' && userData.isEmpty) {
+      getUserCloudData();
+    }
+    debugPrint('Working Data: $workingData');
+    // debugPrint('Keys: ${workingData[0].keys}');
+    // debugPrint('first object: ${workingData[0]}');
+    debugPrint('Number Modifier: $numberModifier');
+    debugPrint('User Data: $userData');
     return Scaffold(
       appBar: graphBar(),
       body: mainGraphContent(context),
@@ -53,26 +61,58 @@ class GraphsPageState extends State<GraphsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (email != '' && userData.isNotEmpty)
+                    DropdownMenu<List<Map<String, dynamic>>>(
+                      label: const Text('Select Available Data'),
+                      onSelected: (List<Map<String, dynamic>>? value) {
+                        if (value != null) {
+                          debugPrint('Data: $value');
+                          setState(() {
+                            workingData =
+                                List<Map<String, dynamic>>.from(value);
+                          });
+                        }
+                      },
+                      dropdownMenuEntries: [
+                        for (var columns in userData)
+                          DropdownMenuEntry<List<Map<String, dynamic>>>(
+                            value: columns.jsonData,
+                            label: columns.title,
+                          )
+                      ],
+                    ),
                   if (_chartType == 'line')
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfCartesianChart(
                         trackballBehavior: TrackballBehavior(
-                            enable: true,
+                            enable: false,
                             activationMode: ActivationMode.singleTap),
                         primaryXAxis: CategoryAxis(),
                         title: const ChartTitle(
                             text: 'Half yearly sales analysis'),
                         series: <CartesianSeries<Map<String, dynamic>, String>>[
                           LineSeries<Map<String, dynamic>, String>(
-                              dataSource: workingData,
+                              dataSource: () {
+                                switch (numberModifier) {
+                                  case 'sum':
+                                    getSumByXAxis();
+                                    // return data;
+                                    return workingData;
+                                  default:
+                                    return workingData;
+                                }
+                              }(),
                               xValueMapper:
                                   (Map<String, dynamic> workingData, _) {
                                 return workingData[xAxis];
                               },
                               yValueMapper:
                                   (Map<String, dynamic> workingData, _) {
-                                return num.parse(workingData[yAxis]);
+                                switch (numberModifier) {
+                                  default:
+                                    return num.tryParse(workingData[yAxis]);
+                                }
                               },
                               name: 'Sales',
                               // Enable data label
@@ -95,7 +135,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelMapper: (Map<String, dynamic> workingData,
                                     _) =>
                                 '${workingData[xAxis]}, ${workingData[yAxis].toString()}',
@@ -117,7 +157,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -134,7 +174,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -220,6 +260,29 @@ class GraphsPageState extends State<GraphsPage> {
                             value: key,
                             label: key.capitalize(),
                           )
+                    ],
+                  ),
+                  DropdownMenu<String>(
+                    label: const Text('Select Number Modifier'),
+                    onSelected: (String? value) {
+                      setState(() {
+                        numberModifier = value!;
+                        debugPrint('Number Modifier: $numberModifier');
+                      });
+                    },
+                    dropdownMenuEntries: const [
+                      DropdownMenuEntry<String>(
+                        value: 'none',
+                        label: 'None',
+                      ),
+                      DropdownMenuEntry(
+                        value: 'sum',
+                        label: 'Sum',
+                      ),
+                      DropdownMenuEntry(
+                        value: 'average',
+                        label: 'Average',
+                      ),
                     ],
                   ),
                 ],
@@ -310,6 +373,61 @@ class GraphsPageState extends State<GraphsPage> {
       ],
     );
   }
+
+  /*
+  Needs to return in the same format as the original data which is a list of a map
+  Loop through the working data and sum the values of the yAxis for each unique value of the xAxis
+  */
+  List<Map<String, dynamic>> getSumByXAxis() {
+    List<Map<String, dynamic>> sumByCategory = [];
+
+    for (var item in workingData) {
+      if (sumByCategory.isEmpty) {
+        sumByCategory.add(item);
+      } else {
+        for (var sumItem in sumByCategory) {
+          if (sumItem[xAxis] == item[xAxis]) {
+            sumItem[yAxis] =
+                (num.parse(item[yAxis]) + num.parse(sumItem[yAxis])).toString();
+          } else {
+            //sumByCategory.add(item);
+          }
+        }
+      }
+    }
+    debugPrint('Sum by Category: $sumByCategory');
+    return sumByCategory;
+  }
+
+  void getUserCloudData() async {
+    List<_CloudData> cloudData = [];
+    var headers = {
+      'Content-Type': 'application/json',
+      'email': email,
+    };
+
+    var response =
+        await http.get(Uri.parse('$basePath/data'), headers: headers);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = Map.castFrom(json.decode(response.body));
+      for (var data in body['Items']) {
+        debugPrint('Data: ${data['content']['data']}');
+        List<Map<String, dynamic>> jsonData = [];
+        for (var item in data['content']['data']) {
+          jsonData.add(Map.castFrom(item));
+        }
+        debugPrint('Json Data: $jsonData');
+        cloudData.add(_CloudData(data['content']['title'], jsonData));
+      }
+      debugPrint('Cloud Data: $cloudData');
+      setState(() {
+        userData = cloudData;
+      });
+    } else {
+      debugPrint('Error: ${response.body}');
+    }
+  }
 }
 
 class _SalesData {
@@ -317,4 +435,11 @@ class _SalesData {
 
   final String year;
   final double sales;
+}
+
+class _CloudData {
+  _CloudData(this.title, this.jsonData);
+
+  final String title;
+  final List<Map<String, dynamic>> jsonData;
 }

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/main.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DataInsertionPage extends StatefulWidget {
   @override
@@ -18,8 +20,12 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
   Widget build(BuildContext context) {
     if (pageData != null) {
       columnNames = pageData!.split('\n')[0].split(',');
-      rowData =
-          pageData!.split('\n').sublist(1).map((e) => e.split(',')).where((element) => element[0].isNotEmpty).toList();
+      rowData = pageData!
+          .split('\n')
+          .sublist(1)
+          .map((e) => e.split(','))
+          .where((element) => element[0].isNotEmpty)
+          .toList();
       debugPrint(rowData.toString());
     }
 
@@ -62,6 +68,11 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
                         workingData.add(rowMap);
                       }
                       debugPrint('workingData: $workingData');
+                      debugPrint('email: $email');
+                      if (email != '') {
+                        _dialogBuilder(context);
+                        debugPrint('Saving to cloud');
+                      }
                     },
                     child: const Text('Save Data'),
                   ),
@@ -94,6 +105,51 @@ class _DataInsertionPageState extends State<DataInsertionPage> {
       ),
     );
   }
+}
+
+Future<void> _dialogBuilder(BuildContext context) {
+  final titleController = TextEditingController();
+
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Please enter a title before saving to the cloud'),
+        content: TextField(
+          controller: titleController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Title',
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              textStyle: Theme.of(context).textTheme.labelLarge,
+            ),
+            child: const Text('Submit'),
+            onPressed: () {
+              _saveToCloud(workingData, titleController.text);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _saveToCloud(List<Map<String, dynamic>> workingData, String title) async {
+  var body = {
+    "content": {"data": workingData, "title": title},
+    "email": email,
+  };
+  var response = await http.post(
+    Uri.parse('$basePath/data'),
+    body: json.encode(body),
+  );
+  debugPrint('Status: $response.statusCode');
+  debugPrint('Response: ${response.body}');
 }
 
 Future<String> getFilePath() async {
