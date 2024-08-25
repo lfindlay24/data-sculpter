@@ -18,7 +18,7 @@ def lambda_handler(event, context):
  
     json_data = json_table.get_item(Key={"json_id":id})["Item"]
     if json_data is None:
-        response(404, "Performance not found")
+        response(404, "Data not found")
     if content is not None:
         json_data['content'] = content
 
