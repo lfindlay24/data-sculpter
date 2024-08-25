@@ -14,6 +14,7 @@ def lambda_handler(event, context):
     body = json.loads(event['body'])
     email = body['email']
     content = body['content']
+    groupName = body['groupName']
 
     if not all([jsonId, body, email]):
         return response(400, {"error":"Missing required fields"})
@@ -22,7 +23,8 @@ def lambda_handler(event, context):
         json_table.put_item(Item={
             'json_id': jsonId,
             'email': email,
-            'content': content
+            'content': content,
+            'groupName': groupName
         })
     except Exception as e:
         return response(500, {"error": str(e)})
