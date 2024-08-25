@@ -280,6 +280,116 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+
+  CreateGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: create.lambda_handler
+      Runtime: python3.12
+      Timeout: 3
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        CreateGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group
+            Method: POST
+            Auth:
+              Authorizer: NONE
+
+  AddUserToGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: add_user.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        AddUserToGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group/add-user
+            Method: POST
+            Auth:
+              Authorizer: NONE
+  
+  RemoveUserFromGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: remove_user.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        RemoveUserFromGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group/remove-user
+            Method: DELETE
+            Auth:
+              Authorizer: NONE
+
+  DeleteGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: delete.lambda_handler
+      Runtime: python3.12
+      Timeout: 15
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        DeleteGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group
+            Method: DELETE
+            Auth:
+              Authorizer: NONE
+
+  GetGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: get_group.lambda_handler
+      Runtime: python3.12
+      Timeout: 3
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        GetGroup:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group/{group_name}
+            Method: GET
+            Auth:
+              Authorizer: NONE
+
   EmailerFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -297,7 +407,6 @@ Resources:
           Properties:
             Queue: !GetAtt MessageQueue.Arn
             BatchSize: 1
-
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function
@@ -325,6 +434,14 @@ Resources:
         Name: email
         Type: String
       TableName: ds_users
+
+  GroupTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: group_name
+        Type: String
+      TableName: ds_groups
   
   UserJsonTable:
     Type: AWS::Serverless::SimpleTable
