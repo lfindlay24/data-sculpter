@@ -280,7 +280,6 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
-=======
   EmailerFunction:
     Type: AWS::Serverless::Function
     Properties:
