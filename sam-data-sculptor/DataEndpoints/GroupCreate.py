@@ -9,27 +9,23 @@ region_name = getenv('APP_REGION')
 json_table = boto3.resource('dynamodb', region_name=region_name ).Table('ds_user_json')
  
 def lambda_handler(event, context):
-    # make a separate table with its own ID and a user ID
-    jsonId = str(uuid4())
     body = json.loads(event['body'])
-    email = body['email']
-    content = body['content']
+    id = body['json_id']
     groupName = body['groupName']
 
-    if not all([jsonId, body, email]):
+    if not all([id, body, groupName]):
         return response(400, {"error":"Missing required fields"})
     
-    try:
-        json_table.put_item(Item={
-            'json_id': jsonId,
-            'email': email,
-            'content': content,
-            'groupName': groupName
-        })
-    except Exception as e:
-        return response(500, {"error": str(e)})
+
+    json_data = json_table.get_item(Key={"json_id":id})["Item"]
+    if json_data is None:
+        response(404, "Data not found")
+
+    json_data['groupName'] = groupName
+    json_table.put_item(Item=json_data)
+
     
-    return response(200, {"id": jsonId})
+    return response(200, {"id": id})
 
 
 def response(code, body):
