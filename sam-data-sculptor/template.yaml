@@ -390,6 +390,27 @@ Resources:
             Auth:
               Authorizer: NONE
 
+  GetAllGroupsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: group_api/
+      Handler: get_all_groups.lambda_handler
+      Runtime: python3.12
+      Timeout: 3
+      Policies:
+        - AmazonDynamoDBFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        GetAllGroups:
+          Type: Api
+          Properties:
+            RestApiId: !Ref API
+            Path: /group/
+            Method: GET
+            Auth:
+              Authorizer: NONE
+
   EmailerFunction:
     Type: AWS::Serverless::Function
     Properties:
