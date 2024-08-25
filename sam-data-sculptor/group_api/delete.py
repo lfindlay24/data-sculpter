@@ -1,5 +1,6 @@
 import boto3
 from boto3.dynamodb.conditions import Attr
+from botocore.exceptions import ClientError
 from os import getenv
 import json
 import bcrypt
@@ -55,17 +56,34 @@ def lambda_handler(event, context):
     # delete the group
     groups_table.delete_item(Key={"group_name": body["group_name"]})
 
+    return response(200, "Group deleted successfully")
+
 def check_password(password, hashed_password):
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-def send_message(message):
-    return sqs_client.send_message(
-        QueueUrl=sqs_url,
-        MessageBody=json.dumps(message)
-    )
+def send_message(message_body, message_group_id="emails"):
+    try:
+        message_response = sqs_client.send_message(
+            QueueUrl=sqs_url,
+            MessageBody=json.dumps(message_body),
+            MessageAttributes={
+                'Author': {
+                    'DataType': 'String',
+                    'StringValue': 'Email Request'
+                }
+            },
+            MessageGroupId=message_group_id
+        )
+        return message_response
+    except ClientError as e:
+        print(f"Error sending message: {e}")
+        return None
 
-def response(status_code, message):
+def response(code, body):
     return {
-        "statusCode": status_code,
-        "body": json.dumps(message)
+        "statusCode": code,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": json.dumps(body)
     }

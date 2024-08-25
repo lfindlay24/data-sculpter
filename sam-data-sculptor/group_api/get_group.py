@@ -8,14 +8,15 @@ groups_table = boto3.resource('dynamodb', region_name=region_name).Table('ds_gro
 
 def lambda_handler(event, context):
 
-    body = json.loads(event["body"])
+    path = event["pathParameters"]
 
-    # check that all needed data was provided
-    if "group_name" not in body:
+    if path is None or "group_name" not in path:
         return response(400, "Group name is required")
     
+    group_name = path["group_name"]
+    
     # check if the group exists
-    groups = groups_table.scan(FilterExpression=Attr("group_name").eq(body["group_name"]))
+    groups = groups_table.scan(FilterExpression=Attr("group_name").eq(group_name))
     if "Items" not in groups or len(groups["Items"]) == 0:
         return response(404, "Group not found")
     
@@ -23,8 +24,11 @@ def lambda_handler(event, context):
 
     return response(200, group)
     
-def response(status_code, message):
+def response(code, body):
     return {
-        "statusCode": status_code,
-        "body": json.dumps(message)
+        "statusCode": code,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": json.dumps(body)
     }

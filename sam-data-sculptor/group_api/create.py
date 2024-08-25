@@ -1,5 +1,6 @@
 import boto3
 from boto3.dynamodb.conditions import Attr
+from botocore.exceptions import ClientError
 from os import getenv
 import json
 
@@ -43,15 +44,29 @@ def lambda_handler(event, context):
 
     return response(200, "Group created successfully")
     
-def send_message(message):
-    response = sqs_client.send_message(
-        QueueUrl=sqs_url,
-        MessageBody=json.dumps(message)
-    )
-    return response
+def send_message(message_body, message_group_id="emails"):
+    try:
+        message_response = sqs_client.send_message(
+            QueueUrl=sqs_url,
+            MessageBody=json.dumps(message_body),
+            MessageAttributes={
+                'Author': {
+                    'DataType': 'String',
+                    'StringValue': 'Email Request'
+                }
+            },
+            MessageGroupId=message_group_id
+        )
+        return message_response
+    except ClientError as e:
+        print(f"Error sending message: {e}")
+        return None
 
-def response(status_code, message):
+def response(code, body):
     return {
-        "statusCode": status_code,
-        "body": json.dumps(message)
+        "statusCode": code,
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "body": json.dumps(body)
     }
