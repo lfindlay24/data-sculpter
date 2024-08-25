@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   final String basePath =
-      'https://v8r5i44rf8.execute-api.us-east-2.amazonaws.com/Dev';
+      'https://m1yf7zt55f.execute-api.us-east-2.amazonaws.com/Dev';
 
   Future<String?> _authUser(LoginData data) async {
     debugPrint('Email: ${data.name}, Password: ${data.password}');
@@ -37,6 +37,7 @@ class LoginScreen extends StatelessWidget {
     if (response.statusCode == 200) {
       //Success return null to return user to the Home Page
       auth = response.body;
+      email = data.name;
       debugPrint('Auth: $auth');
       return null;
     } else {
@@ -91,19 +92,26 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlutterLogin(
-      title: 'Data Sculptor',
-      userType: LoginUserType.email,
-      logo: const AssetImage('assets/images/Logo.png'),
-      onLogin: _authUser,
-      onSignup: _signupUser,
-      onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ));
-      },
-      onRecoverPassword: _recoverPassword,
-      onConfirmRecover: _confirmRecoverPassword,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Leave'),
+        backgroundColor: const Color.fromARGB(255, 103, 80, 164),
+      ),
+      body: FlutterLogin(
+        title: 'Data Sculptor',
+        scrollable: true,
+        userType: LoginUserType.email,
+        logo: const AssetImage('assets/images/Logo.png'),
+        onLogin: _authUser,
+        onSignup: _signupUser,
+        onSubmitAnimationCompleted: () {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (context) => const HomePage(),
+          ));
+        },
+        onRecoverPassword: _recoverPassword,
+        onConfirmRecover: _confirmRecoverPassword,
+      ),
     );
   }
 

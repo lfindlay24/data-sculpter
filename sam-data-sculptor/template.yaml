@@ -10,6 +10,9 @@ Globals:
   Function:
     Timeout: 3
     MemorySize: 128
+    Environment:
+      Variables:
+        SQS_URL: !GetAtt MessageQueue.QueueUrl
 
 Resources:
   API:
@@ -277,24 +280,25 @@ Resources:
             Method: POST
             Auth:
               Authorizer: NONE
+=======
+  EmailerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: emailing-services/
+      Handler: emailer.handler
+      Runtime: nodejs20.x
+      Timeout: 10
+      Policies:
+        - AmazonSQSFullAccess
+      Architectures:
+      - x86_64
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt MessageQueue.Arn
+            BatchSize: 1
 
-  # EmailerFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     CodeUri: emailing-services/
-  #     Handler: emailer.handler
-  #     Runtime: nodejs20.x
-  #     Timeout: 10
-  #     Policies:
-  #       - AmazonSQSFullAccess
-  #     Architectures:
-  #     - x86_64
-  #     Events:
-  #       SQSEvent:
-  #         Type: SQS
-  #         Properties:
-  #           Queue: arn:aws:sqs:us-east-2:339712966749:ds_message_queue.fifo
-  #           BatchSize: 1
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function
@@ -307,6 +311,13 @@ Resources:
         - AmazonDynamoDBFullAccess
       Architectures: 
       - x86_64
+
+  MessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: ds_message_queue.fifo
+      FifoQueue: true
+      ContentBasedDeduplication: true
 
   UserTable:
     Type: AWS::Serverless::SimpleTable
