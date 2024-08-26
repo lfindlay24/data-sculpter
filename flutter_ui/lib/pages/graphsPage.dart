@@ -17,8 +17,8 @@ class GraphsPage extends StatefulWidget {
 }
 
 class GraphsPageState extends State<GraphsPage> {
-  String  xAxis = workingData.isNotEmpty ? workingData[0].keys.first : '';
-  String  yAxis = workingData.isNotEmpty ? workingData[0].keys.last : '';
+  String xAxis = workingData.isNotEmpty ? workingData[0].keys.first : '';
+  String yAxis = workingData.isNotEmpty ? workingData[0].keys.last : '';
   String numberModifier = 'none';
   List<_SalesData> data = [
     _SalesData('Jan', 35),
@@ -35,7 +35,6 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
-
     if (workingData.isEmpty) {
       workingData = [];
     }
@@ -153,16 +152,14 @@ class GraphsPageState extends State<GraphsPage> {
                       child: SfPyramidChart(
                           // title: const ChartTitle(text: 'Sales distribution'),
                           series: PyramidSeries<Map<String, dynamic>, String>(
-                            dataSource: workingData,
-                            xValueMapper:
-                                (Map<String, dynamic> workingData, _) =>
-                                    workingData[xAxis],
-                            yValueMapper:
-                                (Map<String, dynamic> workingData, _) =>
-                                    num.tryParse(workingData[yAxis]),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: true),
-                          )),
+                        dataSource: workingData,
+                        xValueMapper: (Map<String, dynamic> workingData, _) =>
+                            workingData[xAxis],
+                        yValueMapper: (Map<String, dynamic> workingData, _) =>
+                            num.tryParse(workingData[yAxis]),
+                        dataLabelSettings:
+                            const DataLabelSettings(isVisible: true),
+                      )),
                     ),
                   if (_chartType == 'funnel')
                     SizedBox(
@@ -170,16 +167,14 @@ class GraphsPageState extends State<GraphsPage> {
                       child: SfFunnelChart(
                           // title: const ChartTitle(text: 'Sales distribution'),
                           series: FunnelSeries<Map<String, dynamic>, String>(
-                            dataSource: workingData,
-                            xValueMapper:
-                                (Map<String, dynamic> workingData, _) =>
-                                    workingData[xAxis],
-                            yValueMapper:
-                                (Map<String, dynamic> workingData, _) =>
-                                    num.tryParse(workingData[yAxis]),
-                            dataLabelSettings:
-                                const DataLabelSettings(isVisible: true),
-                          )),
+                        dataSource: workingData,
+                        xValueMapper: (Map<String, dynamic> workingData, _) =>
+                            workingData[xAxis],
+                        yValueMapper: (Map<String, dynamic> workingData, _) =>
+                            num.tryParse(workingData[yAxis]),
+                        dataLabelSettings:
+                            const DataLabelSettings(isVisible: true),
+                      )),
                     ),
                   if (_chartType == 'spark')
                     SizedBox(
@@ -242,10 +237,10 @@ class GraphsPageState extends State<GraphsPage> {
                     dropdownMenuEntries: [
                       for (var key in workingData[0].keys)
                         // if (num.tryParse(workingData[0][key]) == null)
-                          DropdownMenuEntry<String>(
-                            value: key,
-                            label: key.capitalize(),
-                          )
+                        DropdownMenuEntry<String>(
+                          value: key,
+                          label: key.capitalize(),
+                        )
                     ],
                   ),
                   DropdownMenu<String>(
