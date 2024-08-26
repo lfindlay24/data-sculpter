@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/main.dart';
 import 'package:flutter_ui/pages/dataInsertionPage.dart';
@@ -89,8 +91,8 @@ class GraphsPageState extends State<GraphsPage> {
                             enable: false,
                             activationMode: ActivationMode.singleTap),
                         primaryXAxis: CategoryAxis(),
-                        title: const ChartTitle(
-                            text: 'Half yearly sales analysis'),
+                        // title: const ChartTitle(
+                        //     text: 'Half yearly sales analysis'),
                         series: <CartesianSeries<Map<String, dynamic>, String>>[
                           LineSeries<Map<String, dynamic>, String>(
                               dataSource: () {
@@ -125,7 +127,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfCircularChart(
-                        title: const ChartTitle(text: 'Sales distribution'),
+                        // title: const ChartTitle(text: 'Sales distribution'),
                         series: <CircularSeries>[
                           PieSeries<Map<String, dynamic>, String>(
                             explode: true,
@@ -149,7 +151,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfPyramidChart(
-                          title: const ChartTitle(text: 'Sales distribution'),
+                          // title: const ChartTitle(text: 'Sales distribution'),
                           series: PyramidSeries<Map<String, dynamic>, String>(
                             dataSource: workingData,
                             xValueMapper:
@@ -166,7 +168,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfFunnelChart(
-                          title: const ChartTitle(text: 'Sales distribution'),
+                          // title: const ChartTitle(text: 'Sales distribution'),
                           series: FunnelSeries<Map<String, dynamic>, String>(
                             dataSource: workingData,
                             xValueMapper:
