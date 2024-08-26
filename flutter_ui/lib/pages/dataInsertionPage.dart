@@ -143,7 +143,7 @@ void _saveToCloud(List<Map<String, dynamic>> workingData, String title) async {
   var body = {
     "content": {"data": workingData, "title": title},
     "email": email,
-    "groupName": ""
+    "groupName": "",
   };
   var response = await http.post(
     Uri.parse('$basePath/data'),

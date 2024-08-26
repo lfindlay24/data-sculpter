@@ -17,8 +17,8 @@ class GraphsPage extends StatefulWidget {
 }
 
 class GraphsPageState extends State<GraphsPage> {
-  String xAxis = workingData[0].keys.first;
-  String yAxis = workingData[0].keys.last;
+  String  xAxis = workingData.isNotEmpty ? workingData[0].keys.first : '';
+  String  yAxis = workingData.isNotEmpty ? workingData[0].keys.last : '';
   String numberModifier = 'none';
   List<_SalesData> data = [
     _SalesData('Jan', 35),
@@ -35,14 +35,16 @@ class GraphsPageState extends State<GraphsPage> {
 
   @override
   Widget build(BuildContext context) {
+
     if (workingData.isEmpty) {
       workingData = [];
     }
     if (email != '' && userData.isEmpty) {
       getUserCloudData();
     }
-    debugPrint('Keys: ${workingData[0].keys}');
-    debugPrint('first object: ${workingData[0]}');
+    debugPrint('Working Data: $workingData');
+    // debugPrint('Keys: ${workingData[0].keys}');
+    // debugPrint('first object: ${workingData[0]}');
     debugPrint('Number Modifier: $numberModifier');
     debugPrint('User Data: $userData');
     return Scaffold(
@@ -62,22 +64,21 @@ class GraphsPageState extends State<GraphsPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (email != '' && userData.isNotEmpty)
-                    DropdownMenu<String>(
+                    DropdownMenu<List<Map<String, dynamic>>>(
                       label: const Text('Select Available Data'),
-                      onSelected: (String? value) {
-                        debugPrint('Data: $value');
-                        List<Map<String, dynamic>> data = List.empty(growable: true);
-                        for (var entry in json.decode(value!)) {
-                          data.add(entry);
+                      onSelected: (List<Map<String, dynamic>>? value) {
+                        if (value != null) {
+                          debugPrint('Data: $value');
+                          setState(() {
+                            workingData =
+                                List<Map<String, dynamic>>.from(value);
+                          });
                         }
-                        setState(() {
-                          workingData = data;
-                        });
                       },
                       dropdownMenuEntries: [
                         for (var columns in userData)
-                          DropdownMenuEntry<String>(
-                            value: json.encode(columns.jsonData),
+                          DropdownMenuEntry<List<Map<String, dynamic>>>(
+                            value: columns.jsonData,
                             label: columns.title,
                           )
                       ],
@@ -87,7 +88,7 @@ class GraphsPageState extends State<GraphsPage> {
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfCartesianChart(
                         trackballBehavior: TrackballBehavior(
-                            enable: true,
+                            enable: false,
                             activationMode: ActivationMode.singleTap),
                         primaryXAxis: CategoryAxis(),
                         // title: const ChartTitle(
@@ -112,7 +113,7 @@ class GraphsPageState extends State<GraphsPage> {
                                   (Map<String, dynamic> workingData, _) {
                                 switch (numberModifier) {
                                   default:
-                                    return num.parse(workingData[yAxis]);
+                                    return num.tryParse(workingData[yAxis]);
                                 }
                               },
                               name: 'Sales',
@@ -136,7 +137,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelMapper: (Map<String, dynamic> workingData,
                                     _) =>
                                 '${workingData[xAxis]}, ${workingData[yAxis].toString()}',
@@ -158,7 +159,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -175,7 +176,7 @@ class GraphsPageState extends State<GraphsPage> {
                                     workingData[xAxis],
                             yValueMapper:
                                 (Map<String, dynamic> workingData, _) =>
-                                    num.parse(workingData[yAxis]),
+                                    num.tryParse(workingData[yAxis]),
                             dataLabelSettings:
                                 const DataLabelSettings(isVisible: true),
                           )),
@@ -240,7 +241,7 @@ class GraphsPageState extends State<GraphsPage> {
                     },
                     dropdownMenuEntries: [
                       for (var key in workingData[0].keys)
-                        if (num.tryParse(workingData[0][key]) == null)
+                        // if (num.tryParse(workingData[0][key]) == null)
                           DropdownMenuEntry<String>(
                             value: key,
                             label: key.capitalize(),
@@ -411,11 +412,15 @@ class GraphsPageState extends State<GraphsPage> {
         await http.get(Uri.parse('$basePath/data'), headers: headers);
 
     if (response.statusCode == 200) {
-      var body = json.decode(response.body);
+      Map<String, dynamic> body = Map.castFrom(json.decode(response.body));
       for (var data in body['Items']) {
         debugPrint('Data: ${data['content']['data']}');
-        cloudData
-            .add(_CloudData(data['content']['title'], data['content']['data']));
+        List<Map<String, dynamic>> jsonData = [];
+        for (var item in data['content']['data']) {
+          jsonData.add(Map.castFrom(item));
+        }
+        debugPrint('Json Data: $jsonData');
+        cloudData.add(_CloudData(data['content']['title'], jsonData));
       }
       debugPrint('Cloud Data: $cloudData');
       setState(() {
@@ -438,5 +443,5 @@ class _CloudData {
   _CloudData(this.title, this.jsonData);
 
   final String title;
-  final List<dynamic> jsonData;
+  final List<Map<String, dynamic>> jsonData;
 }
