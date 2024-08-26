@@ -34,7 +34,7 @@ class HomePage extends StatelessWidget {
             color: Colors.deepPurple,
           ),
           child: Text(
-            'Data Sculpor',
+            'Data Sculptor',
             style: TextStyle(
               color: Colors.white,
               fontSize: 24.0,
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
   AppBar appBar() {
     return AppBar(
       title: const Text(
-        'Data Sculpor',
+        'Data Sculptor',
         style: TextStyle(
           color: Colors.deepPurple,
           fontSize: 20.0,

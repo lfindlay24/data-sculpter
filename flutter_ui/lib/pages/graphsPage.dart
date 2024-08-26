@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_ui/main.dart';
 import 'package:flutter_ui/pages/dataInsertionPage.dart';
@@ -64,8 +66,12 @@ class GraphsPageState extends State<GraphsPage> {
                       label: const Text('Select Available Data'),
                       onSelected: (String? value) {
                         debugPrint('Data: $value');
+                        List<Map<String, dynamic>> data = List.empty(growable: true);
+                        for (var entry in json.decode(value!)) {
+                          data.add(entry);
+                        }
                         setState(() {
-                          workingData = json.decode(value!);
+                          workingData = data;
                         });
                       },
                       dropdownMenuEntries: [
@@ -84,8 +90,8 @@ class GraphsPageState extends State<GraphsPage> {
                             enable: true,
                             activationMode: ActivationMode.singleTap),
                         primaryXAxis: CategoryAxis(),
-                        title: const ChartTitle(
-                            text: 'Half yearly sales analysis'),
+                        // title: const ChartTitle(
+                        //     text: 'Half yearly sales analysis'),
                         series: <CartesianSeries<Map<String, dynamic>, String>>[
                           LineSeries<Map<String, dynamic>, String>(
                               dataSource: () {
@@ -120,7 +126,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfCircularChart(
-                        title: const ChartTitle(text: 'Sales distribution'),
+                        // title: const ChartTitle(text: 'Sales distribution'),
                         series: <CircularSeries>[
                           PieSeries<Map<String, dynamic>, String>(
                             explode: true,
@@ -144,7 +150,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfPyramidChart(
-                          title: const ChartTitle(text: 'Sales distribution'),
+                          // title: const ChartTitle(text: 'Sales distribution'),
                           series: PyramidSeries<Map<String, dynamic>, String>(
                             dataSource: workingData,
                             xValueMapper:
@@ -161,7 +167,7 @@ class GraphsPageState extends State<GraphsPage> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: SfFunnelChart(
-                          title: const ChartTitle(text: 'Sales distribution'),
+                          // title: const ChartTitle(text: 'Sales distribution'),
                           series: FunnelSeries<Map<String, dynamic>, String>(
                             dataSource: workingData,
                             xValueMapper:
@@ -408,7 +414,8 @@ class GraphsPageState extends State<GraphsPage> {
       var body = json.decode(response.body);
       for (var data in body['Items']) {
         debugPrint('Data: ${data['content']['data']}');
-        cloudData.add(_CloudData(data['content']['title'], data['content']['data']));
+        cloudData
+            .add(_CloudData(data['content']['title'], data['content']['data']));
       }
       debugPrint('Cloud Data: $cloudData');
       setState(() {
