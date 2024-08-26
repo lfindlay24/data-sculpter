@@ -4,6 +4,7 @@ import 'package:flutter_ui/pages/dataInsertionPage.dart';
 import 'package:flutter_ui/pages/graphsPage.dart';
 import 'package:flutter_ui/pages/login.dart';
 import 'package:flutter_ui/main.dart';
+import 'package:flutter_ui/pages/adminPage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -49,15 +50,10 @@ class HomePage extends StatelessWidget {
           },
         ),
         ListTile(
-          title: const Text('About'),
+          title: const Text('Groups'),
           onTap: () {
-            // Add your logic here
-          },
-        ),
-        ListTile(
-          title: const Text('Contact'),
-          onTap: () {
-            // Add your logic here
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => AdminPage()));
           },
         ),
         ListTile(
