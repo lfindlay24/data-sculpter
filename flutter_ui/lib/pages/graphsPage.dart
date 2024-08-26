@@ -239,7 +239,7 @@ class GraphsPageState extends State<GraphsPage> {
                     },
                     dropdownMenuEntries: [
                       for (var key in workingData[0].keys)
-                        if (num.tryParse(workingData[0][key]) == null)
+                        // if (num.tryParse(workingData[0][key]) == null)
                           DropdownMenuEntry<String>(
                             value: key,
                             label: key.capitalize(),
